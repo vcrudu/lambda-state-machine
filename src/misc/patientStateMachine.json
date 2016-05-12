@@ -1,0 +1,128 @@
+{
+  "start": {
+    "name": "StateUnreadWelcome",
+    "transitions": [{
+      "trigger": "OnReadWelcome",
+      "target": "StateWelcomed"
+    }],
+    "actions": [{
+      "name": "ActionSendWelcomeNotification"
+    }]
+  },
+  "states": [
+    {
+      "name": "StateWelcomed",
+      "transitions": [{
+        "trigger": "OnReadInformDevicesAvailable",
+        "target": "StateInformedDevicesAvailable"
+      }],
+      "actions": [{
+        "name": "ActionSendInformDevicesAvailable"
+      }]
+    },
+    {
+      "name": "StateInformedDevicesAvailable",
+      "transitions": [{
+        "trigger": "OnReadInformCanMakeAppointments",
+        "target": "StateInformedCanMakeAppointments"
+      }],
+      "actions": [{
+        "name": "ActionSendInformCanMakeAppointments"
+      }]
+    },
+    {
+      "name": "StateInformedCanMakeAppointments",
+      "transitions": [{
+        "trigger": "OnReadInformProvideDetails",
+        "target": "StateInformedProvideDetails"
+      }],
+      "actions": [{
+        "name": "ActionSendInformProvideDetails"
+      }]
+    },
+    {
+      "name": "StateInformedProvideDetails",
+      "transitions": [{
+        "trigger": "OnReadInformedProvideDetails",
+        "target": "StateIdle"
+      }]
+    },
+    {
+      "name": "StateIdle",
+      "transitions": [{
+        "trigger": "OnAppointmentBooking",
+        "target": "StateAppointmentBooked"
+      },
+        {
+        "trigger": "OnDevicesOrdering",
+        "target": "StateDevicesOrdered"
+      },
+        {
+          "trigger":"OnMeasurementExpected",
+          "target" : "StateWaitingMeasurement"
+        }
+      ]
+    },
+    {
+      "name":"StateAppointmentBooked",
+      "transitions": [{
+        "trigger": "OnOneMinuteRemained",
+        "target": "StateInformedNotificationSoon"
+      }],
+      "actions": [{
+        "name": "ActionSendPatientAppointmentBookedNotification"
+      },
+       {
+        "name": "ActionSendProviderAppointmentBookedNotification"
+      }]
+    },
+    {
+      "name":"StateInformedNotificationSoon",
+      "transitions": [{
+        "trigger": "OnNotificationSoonSent",
+        "target": "StateIdle"
+      }],
+      "actions": []
+    },
+    {
+      "name":"StateDevicesOrdered",
+      "transitions": [{
+        "trigger": "OnDevicesDispatching",
+        "target": "StateDevicesDispatched"
+      }],
+      "actions": [{
+        "name": "ActionSendDevicesOrderedNotification"
+      }]
+    },
+    {
+      "name": "StateDevicesDispatched",
+      "transition": {
+        "trigger": "OnDevicesDelivering",
+        "target": "StateDevicesDelivered"
+      },
+      "actions": [{
+        "name": "ActionSendDevicesDispatchedNotification"
+      }]
+    },
+    {
+      "name": "StateDevicesDelivered",
+      "transitions": [{
+        "trigger": "OnDevicesInstalled",
+        "target": "StateWaitingMeasurement"
+      }],
+        "actions":[{
+          "name":"ActionSendInstallDevicesNotification"
+        }]
+    },
+    {
+      "name":"StateWaitingMeasurement",
+      "transitions":[{
+        "trigger":"OnMeasurementReceived",
+        "target":"StateIdle"
+      }],
+      "actions":[{
+        "name":"ActionSendTakeMeasurementNotification"
+      }]
+    }
+  ]
+}
