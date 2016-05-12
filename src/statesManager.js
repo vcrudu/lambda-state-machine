@@ -41,14 +41,19 @@ class StatesManager {
 
     isTransitionValid(eventName, currentStateName) {
         let currentState = this.getState(currentStateName);
-        if (!currentState) return false;
+        if (!currentState) {
+            return false;
+        }
+
         let transition = currentState.getTransition(eventName);
         if (transition) {
             let result = _.find(this._stateMachineConfig.states, function (aState) {
                 return aState.name === transition.target;
             });
             return result ? true : false;
-        } else return false;
+        } else {
+            return false;
+        }
     }
 
     runStateActions(name, user, callback) {

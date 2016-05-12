@@ -18,15 +18,15 @@
         name: 'hcm.registration',
         streams: [
             {
-                level: 'debug',
+                level: 'error',
                 stream: process.stdout            // log INFO and above to stdout
             },
             {
-                level: 'trace',
+                level: 'error',
                 stream: streamCW            // log INFO and above to stdout
             },
             {
-            level: 'trace',
+            level: 'error',
             type: 'rotating-file',
             path: './log/hcm.log',
             period: '1d',   // daily rotation
@@ -38,7 +38,7 @@
         name: 'hcm.registration.local',
         streams: [
             {
-                level: 'trace',
+                level: 'error',
                 type: 'rotating-file',
                 path: './log/hcm.log',
                 period: '1d',   // daily rotation

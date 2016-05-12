@@ -11,6 +11,16 @@
   },
   "states": [
     {
+      "name": "StateUnreadWelcome",
+      "transitions": [{
+        "trigger": "OnReadWelcome",
+        "target": "StateWelcomed"
+      }],
+      "actions": [{
+        "name": "ActionSendWelcomeNotification"
+      }]
+    },
+    {
       "name": "StateWelcomed",
       "transitions": [{
         "trigger": "OnReadInformDevicesAvailable",
@@ -34,16 +44,16 @@
       "name": "StateInformedCanMakeAppointments",
       "transitions": [{
         "trigger": "OnReadInformProvideDetails",
-        "target": "StateInformedProvideDetails"
+        "target": "StateAwaitingProvideDetails"
       }],
       "actions": [{
         "name": "ActionSendInformProvideDetails"
       }]
     },
     {
-      "name": "StateInformedProvideDetails",
+      "name": "StateAwaitingProvideDetails",
       "transitions": [{
-        "trigger": "OnReadInformedProvideDetails",
+        "trigger": "OnProvideDetails",
         "target": "StateIdle"
       }]
     },
@@ -58,7 +68,7 @@
         "target": "StateDevicesOrdered"
       },
         {
-          "trigger":"OnMeasurementExpected",
+          "trigger": "OnMeasurementExpected",
           "target" : "StateWaitingMeasurement"
         }
       ]
@@ -79,7 +89,7 @@
     {
       "name":"StateInformedNotificationSoon",
       "transitions": [{
-        "trigger": "OnNotificationSoonSent",
+        "trigger": "OnReadNotificationSoon",
         "target": "StateIdle"
       }],
       "actions": []
@@ -96,10 +106,10 @@
     },
     {
       "name": "StateDevicesDispatched",
-      "transition": {
+      "transitions": [{
         "trigger": "OnDevicesDelivering",
         "target": "StateDevicesDelivered"
-      },
+      }],
       "actions": [{
         "name": "ActionSendDevicesDispatchedNotification"
       }]

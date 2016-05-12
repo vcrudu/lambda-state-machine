@@ -25,7 +25,6 @@ describe('State class',()=> {
             };
 
             var state = new State(stateConfig);
-            expect(state).to.be.ok;
 
             var nextStateName = state.getNextStateName(stateConfig.transitions[0].trigger);
             expect(nextStateName).to.be.equal(stateConfig.transitions[0].target);
@@ -87,8 +86,44 @@ describe('State class',()=> {
             state.runStateActions({}, ()=>{
                 expect(action1DoStub.called).to.be.true;
                 expect(action2DoStub.called).to.be.true;
+                getActionStub.restore();
                 done();
             })
+
+        });
+    });
+
+    describe('State.runStateActions', ()=> {
+        it('should run all state actions', (done)=> {
+
+            let stateConfig = {
+                name: "TestState",
+                transitions: [{
+                    trigger: "OnTestEvent",
+                    target: "TestTarget"
+                }],
+                actions: []
+            };
+
+            let getActionStub = sinon.stub(actionFactory, 'getAction');
+            let action1 = new Action();
+            let action2 = new Action();
+            let action1DoStub = sinon.stub(action1, 'do');
+            action1DoStub.yields(null, null);
+            let action2DoStub = sinon.stub(action2, 'do');
+            action2DoStub.yields(null, null);
+
+            getActionStub.withArgs("ActionTest1").returns(action1);
+            getActionStub.withArgs("ActionTest2").returns(action2);
+
+            let state = new State(stateConfig, actionFactory);
+            state.runStateActions({}, (arg1, arg2)=>{
+                expect(arg1).to.be.undefined;
+                expect(arg2).to.be.undefined;
+                getActionStub.restore();
+                done();
+            })
+
         });
     });
 });

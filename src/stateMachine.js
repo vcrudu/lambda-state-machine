@@ -18,9 +18,9 @@ class StateMachine {
                 callback(new Error('Error retrieving the user from db!'));
                 return;
             }
-
             if (!user.userState) {
-                this._userRepository.updateState(user.email, this._statesManager.getStartState().name, (err)=> {
+                let startState = this._statesManager.getStartState();
+                this._userRepository.updateState(user.email, startState.getStateName(), (err)=> {
                     if (err) {
                         callback(new Error('Error updating the user status!'));
                         return;
@@ -28,7 +28,7 @@ class StateMachine {
 
                     let startState = this._statesManager.getStartState();
 
-                    this._statesManager.runStateActions(startState, user, callback);
+                    this._statesManager.runStateActions(startState.getStateName(), user, callback);
                 });
             } else {
                 if (this._statesManager.isTransitionValid(event.name, user.userState)) {
@@ -42,8 +42,9 @@ class StateMachine {
                                 this._statesManager.runStateActions(nextStateName, user, callback);
                             }
                         });
-                    }
-                }
+                    } else callback(new Error('Target state '+ nextStateName +' is not valid state for event '+event.name+' from current' +
+                        ' user state '+user.userState+'!'));
+                } else callback(new Error('No valid transition for event '+event.name+' for user state '+user.userState+'!'));
             }
         });
     }

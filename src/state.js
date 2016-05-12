@@ -12,6 +12,10 @@ class State{
         this._actionFactory = actionFactory;
     }
 
+    getStateName(){
+        return this._stateConfig.name;
+    }
+
     getStateConfig(){
         return this._stateConfig;
     }
@@ -35,6 +39,7 @@ class State{
     runStateActions(user, callback) {
 
         let observable = Rx.Observable.create((observer)=> {
+            if(this._stateConfig.actions.length===0) observer.onCompleted();
             let n = 1;
             _.forEach(this._stateConfig.actions,  (action)=> {
                 let actionObject = this._actionFactory.getAction(action.name);

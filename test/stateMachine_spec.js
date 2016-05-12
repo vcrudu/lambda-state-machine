@@ -11,27 +11,41 @@ import repositoriesFactory from '../src/repositoriesFactory'
 import awsFactory from '../src/awsFactory';
 import actionFactory from '../src/actions/actionFactory'
 import StatesManager from '../src/statesManager';
+import Action from '../src/actions/action';
 
 describe('StateMachine',()=> {
     chai.should();
-    var expect = chai.expect;
-    var getDynamoDbStub = function(userState){
-        var dynamoDb= awsFactory.getDb();
-        sinon.stub(dynamoDb, "getItem", function(params, callback) {
-            setTimeout(function () {
+    let expect = chai.expect;
+    let userId = 'test@test.com';
+    let actionName = 'ActionSendWelcomeNotification';
+    let filePath = path.resolve('.', './src/misc/patientStateMachine.json');
+    let stateMachineConfig = ConfigManager.getLocalStateMachineConfig(filePath);
+    let userState = null;
+    let userRepository,spyUserRepositoryFindOneByEmail,spyUserRepositoryUpdateStatus,
+        getActionStub,snsClientStub,statesManager, stateMachine,publishParams;
+
+    var event = {
+        name: "Any",
+        payload: {userId: userId}
+    };
+
+    var getDynamoDbStub = function (userStateValue) {
+        var dynamoDb = awsFactory.getDb();
+        sinon.stub(dynamoDb, "getItem", (params, callback)=> {
+            setTimeout( ()=> {
                 if (userState) {
                     callback(null, {
                         Item: {
-                            email: {S: 'test@test.com'},
+                            email: {S: userId},
                             name: {S: 'Test Testovici'},
-                            userState: {S: userState}
+                            userState: {S: userStateValue}
                         }
                     });
                 }
                 else {
                     callback(null, {
                         Item: {
-                            email: {S: 'test@test.com'},
+                            email: {S: userId},
                             name: {S: 'Test Testovici'}
                         }
                     });
@@ -40,41 +54,317 @@ describe('StateMachine',()=> {
             }, 0);
         });
 
-        sinon.stub(dynamoDb, "updateItem", function(params, callback){
-            setTimeout(function(){
+        sinon.stub(dynamoDb, "updateItem", function (params, callback) {
+            setTimeout( ()=> {
                 callback(null, 'OK');
             }, 0);
         });
+
         return dynamoDb;
     };
 
-    describe('StateMachine receiveEvent', () => {
-        it('should call userRepository.FindOneByEmail', (done)=> {
-            var filePath = path.resolve('.', './src/misc/patientStateMachine.json');
-            var stateMachineConfig = ConfigManager.getLocalStateMachineConfig(filePath);
-            stateMachineConfig.start.should.to.be.ok;
+   function initTest(eventName, userStateValue, actionNameValue) {
 
-            let userRepository = repositoriesFactory.getUserRepository(getDynamoDbStub());
+       event.name = eventName;
+       userState = userStateValue;
+       actionName = actionNameValue;
+       publishParams = {
+           Message: JSON.stringify({
+               userId: userId,
+               action: actionName
+           }),
+           MessageAttributes: {
+               userId: {
+                   DataType: 'String',
+                   StringValue: userId
+               }
+           },
+           TargetArn: 'arn:aws:sns:eu-west-1:160466482332:trichrome-notification'
+       };
 
-            userRepository.should.be.ok;
-            done();
+       snsClientStub = {publish: sinon.stub()};
+       snsClientStub.publish.yields(null, "ok");
+
+       getActionStub = sinon.stub(actionFactory, 'getAction');
+       getActionStub.withArgs('ActionSendWelcomeNotification').returns(new Action('ActionSendWelcomeNotification', snsClientStub));
+       getActionStub.withArgs('ActionSendWelcomeNotification').returns(new Action('ActionSendWelcomeNotification', snsClientStub));
+       getActionStub.withArgs('ActionSendInformDevicesAvailable').returns(new Action('ActionSendInformDevicesAvailable', snsClientStub));
+       getActionStub.withArgs('ActionSendInformCanMakeAppointments').returns(new Action('ActionSendInformCanMakeAppointments', snsClientStub));
+       getActionStub.withArgs('ActionSendInformProvideDetails').returns(new Action('ActionSendInformProvideDetails', snsClientStub));
+       getActionStub.withArgs('ActionSendPatientAppointmentBookedNotification').returns(new Action('ActionSendPatientAppointmentBookedNotification', snsClientStub));
+       getActionStub.withArgs('ActionSendProviderAppointmentBookedNotification').returns(new Action('ActionSendProviderAppointmentBookedNotification', snsClientStub));
+       getActionStub.withArgs('ActionSendDevicesOrderedNotification').returns(new Action('ActionSendDevicesOrderedNotification', snsClientStub));
+       getActionStub.withArgs('ActionSendDevicesDispatchedNotification').returns(new Action('ActionSendDevicesDispatchedNotification', snsClientStub));
+       getActionStub.withArgs('ActionSendInstallDevicesNotification').returns(new Action('ActionSendInstallDevicesNotification', snsClientStub));
+       getActionStub.withArgs('ActionSendTakeMeasurementNotification').returns(new Action('ActionSendTakeMeasurementNotification', snsClientStub));
+
+       userRepository = repositoriesFactory.getUserRepository(getDynamoDbStub(userState));
+
+       spyUserRepositoryFindOneByEmail = sinon.spy(userRepository, "findOneByEmail");
+       spyUserRepositoryUpdateStatus = sinon.spy(userRepository, "updateState");
 
 
-            var spyUserRepositoryFindOneByEmail = sinon.spy(userRepository, "findOneByEmail");
-            var spyUserRepositoryUpdateStatus = sinon.spy(userRepository, "updateState");
+       statesManager = new StatesManager(stateMachineConfig, actionFactory);
+       stateMachine = new StateMachine(statesManager, userRepository, actionFactory);
 
-            var statesManager = new StatesManager(stateMachineConfig, actionFactory);
+   }
 
-            let stateMachine = new StateMachine(statesManager, userRepository, actionFactory);
-            var event = {
-                payload: {userId: 'test@test.com'}
-            };
+
+    describe('StateMachine receiveEvent and user has no state', () => {
+        it('should set start state and execute ActionSendWelcomeNotification', (done)=> {
+            initTest('Any', null, 'ActionSendWelcomeNotification');
+            let expectedState=stateMachineConfig.start.name;
             stateMachine.receiveEvent(event, function () {
-                spyUserRepositoryFindOneByEmail.calledOnce.should.ok;
-                spyUserRepositoryUpdateStatus.calledOnce.should.ok;
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.calledOnce).to.be.true;
+                expect(getActionStub.calledWith(actionName)).to.be.true;
+                expect(snsClientStub.publish.calledOnce).to.be.true;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.true;
                 done();
             });
-            
         });
+    });
+
+    describe('StateMachine is in [StateUnreadWelcome] and receive [OnReadWelcome] receiveEvent', () => {
+        it('should set state to [StateWelcomed] and execute [ActionSendInformDevicesAvailable]', (done)=> {
+            initTest('OnReadWelcome', 'StateUnreadWelcome','ActionSendInformDevicesAvailable');
+            let expectedState = 'StateWelcomed';
+            stateMachine.receiveEvent(event, function () {
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledOnce).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.calledOnce).to.be.true;
+                expect(getActionStub.calledWith(actionName)).to.be.true;
+                expect(snsClientStub.publish.calledOnce).to.be.true;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.true;
+                done();
+            });
+        });
+    });
+
+    describe('StateMachine is in [StateWelcomed] and receive [OnReadInformDevicesAvailable] receiveEvent', () => {
+        it('should set state to [StateInformedDevicesAvailable] and execute [ActionSendInformCanMakeAppointments]', (done)=> {
+            initTest('OnReadInformDevicesAvailable', 'StateWelcomed','ActionSendInformCanMakeAppointments');
+            let expectedState = 'StateInformedDevicesAvailable';
+            stateMachine.receiveEvent(event, function () {
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledOnce).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.calledOnce).to.be.true;
+                expect(getActionStub.calledWith(actionName)).to.be.true;
+                expect(snsClientStub.publish.calledOnce).to.be.true;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.true;
+                done();
+            });
+        });
+    });
+
+    describe('StateMachine is in [StateInformedDevicesAvailable] and receive [OnReadInformCanMakeAppointments] receiveEvent', () => {
+        it('should set state to [StateInformedCanMakeAppointments] and execute [ActionSendInformProvideDetails]', (done)=> {
+            initTest('OnReadInformCanMakeAppointments', 'StateInformedDevicesAvailable','ActionSendInformProvideDetails');
+            let expectedState = 'StateInformedCanMakeAppointments';
+            stateMachine.receiveEvent(event, function () {
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledOnce).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.calledOnce).to.be.true;
+                expect(getActionStub.calledWith(actionName)).to.be.true;
+                expect(snsClientStub.publish.calledOnce).to.be.true;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.true;
+                done();
+            });
+        });
+    });
+
+    describe('StateMachine is in [StateInformedCanMakeAppointments] and receive [OnReadInformProvideDetails] receiveEvent', () => {
+        it('should set state to [StateAwaitingProvideDetails] and execute none', (done)=> {
+            initTest('OnReadInformProvideDetails', 'StateInformedCanMakeAppointments',null);
+            let expectedState = 'StateAwaitingProvideDetails';
+            stateMachine.receiveEvent(event, function () {
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledOnce).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.called).to.be.false;
+                expect(snsClientStub.publish.called).to.be.false;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.false;
+                done();
+            });
+        });
+    });
+
+    describe('StateMachine is in [StateAwaitingProvideDetails] and receive [OnProvideDetails] receiveEvent', () => {
+        it('should set state to [StateIdle] and execute none', (done)=> {
+            initTest('OnProvideDetails', 'StateAwaitingProvideDetails',null);
+            let expectedState = 'StateIdle';
+            stateMachine.receiveEvent(event, function () {
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledOnce).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.called).to.be.false;
+                expect(snsClientStub.publish.called).to.be.false;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.false;
+                done();
+            });
+        });
+    });
+
+    describe('StateMachine is in [StateIdle] and receive [OnAppointmentBooking] receiveEvent', () => {
+        it('should set state to [StateAppointmentBooked] and execute [ActionSendPatientAppointmentBookedNotification]' +
+            ' and [ActionSendProviderAppointmentBookedNotification]', (done)=> {
+            initTest('OnAppointmentBooking', 'StateIdle', 'ActionSendPatientAppointmentBookedNotification');
+            let expectedState = 'StateAppointmentBooked';
+            stateMachine.receiveEvent(event, function () {
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledOnce).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.calledTwice).to.be.true;
+                expect(getActionStub.calledWith(actionName)).to.be.true;
+                expect(snsClientStub.publish.calledTwice).to.be.true;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.true;
+                publishParams.Message = JSON.stringify({
+                    userId: userId,
+                    action: 'ActionSendProviderAppointmentBookedNotification'
+                });
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.true;
+                done();
+            });
+        });
+    });
+
+    describe('StateMachine is in [StateAppointmentBooked] and receive [OnOneMinuteRemained] receiveEvent', () => {
+        it('should set state to [StateInformedNotificationSoon] and execute none', (done)=> {
+            initTest('OnOneMinuteRemained', 'StateAppointmentBooked',null);
+            let expectedState = 'StateInformedNotificationSoon';
+            stateMachine.receiveEvent(event, function () {
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledOnce).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.called).to.be.false;
+                expect(snsClientStub.publish.called).to.be.false;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.false;
+                done();
+            });
+        });
+    });
+
+    describe('StateMachine is in [StateInformedNotificationSoon] and receive [OnReadNotificationSoon] receiveEvent', () => {
+        it('should set state to [StateIdle] and execute none', (done)=> {
+            initTest('OnReadNotificationSoon', 'StateInformedNotificationSoon',null);
+            let expectedState = 'StateIdle';
+            stateMachine.receiveEvent(event, function () {
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledOnce).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.called).to.be.false;
+                expect(snsClientStub.publish.called).to.be.false;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.false;
+                done();
+            });
+        });
+    });
+
+    describe('StateMachine is in [StateIdle] and receive [OnDevicesOrdering] receiveEvent', () => {
+        it('should set state to [StateDevicesOrdered] and execute [ActionSendDevicesOrderedNotification]', (done)=> {
+            initTest('OnDevicesOrdering', 'StateIdle','ActionSendDevicesOrderedNotification');
+            let expectedState = 'StateDevicesOrdered';
+            stateMachine.receiveEvent(event, function () {
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledOnce).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.calledOnce).to.be.true;
+                expect(getActionStub.calledWith(actionName)).to.be.true;
+                expect(snsClientStub.publish.calledOnce).to.be.true;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.true;
+                done();
+            });
+        });
+    });
+
+    describe('StateMachine is in [StateDevicesOrdered] and receive [OnDevicesDispatching] receiveEvent', () => {
+        it('should set state to [StateDevicesDispatched] and execute [ActionSendDevicesDispatchedNotification]', (done)=> {
+            initTest('OnDevicesDispatching', 'StateDevicesOrdered','ActionSendDevicesDispatchedNotification');
+            let expectedState = 'StateDevicesDispatched';
+            stateMachine.receiveEvent(event, function () {
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledOnce).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.calledOnce).to.be.true;
+                expect(getActionStub.calledWith(actionName)).to.be.true;
+                expect(snsClientStub.publish.calledOnce).to.be.true;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.true;
+                done();
+            });
+        });
+    });
+
+    describe('StateMachine is in [StateDevicesDispatched] and receive [OnDevicesDelivering] receiveEvent', () => {
+        it('should set state to [StateDevicesDelivered] and execute [ActionSendInstallDevicesNotification]', (done)=> {
+            initTest('OnDevicesDelivering', 'StateDevicesDispatched','ActionSendInstallDevicesNotification');
+            let expectedState = 'StateDevicesDelivered';
+            stateMachine.receiveEvent(event, function () {
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledOnce).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.calledOnce).to.be.true;
+                expect(getActionStub.calledWith(actionName)).to.be.true;
+                expect(snsClientStub.publish.calledOnce).to.be.true;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.true;
+                done();
+            });
+        });
+    });
+
+    describe('StateMachine is in [StateDevicesDelivered] and receive [OnDevicesInstalled] receiveEvent', () => {
+        it('should set state to [StateWaitingMeasurement] and execute [ActionSendTakeMeasurementNotification]', (done)=> {
+            initTest('OnDevicesInstalled', 'StateDevicesDelivered','ActionSendTakeMeasurementNotification');
+            let expectedState = 'StateWaitingMeasurement';
+            stateMachine.receiveEvent(event, function () {
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledOnce).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.calledOnce).to.be.true;
+                expect(getActionStub.calledWith(actionName)).to.be.true;
+                expect(snsClientStub.publish.calledOnce).to.be.true;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.true;
+                done();
+            });
+        });
+    });
+
+    describe('StateMachine is in [StateWaitingMeasurement] and receive [OnMeasurementReceived] receiveEvent', () => {
+        it('should set state to [StateIdle] and execute none', (done)=> {
+            initTest('OnMeasurementReceived', 'StateWaitingMeasurement',null);
+            let expectedState = 'StateIdle';
+            stateMachine.receiveEvent(event, function () {
+                expect(spyUserRepositoryFindOneByEmail.calledOnce).to.be.true;
+                expect(spyUserRepositoryFindOneByEmail.calledWith(event.payload.userId)).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledOnce).to.be.true;
+                expect(spyUserRepositoryUpdateStatus.calledWith(userId, expectedState)).to.be.true;
+                expect(getActionStub.called).to.be.false;
+                expect(snsClientStub.publish.called).to.be.false;
+                expect(snsClientStub.publish.calledWith(publishParams)).to.be.false;
+                done();
+            });
+        });
+    });
+
+    afterEach(()=> {
+        getActionStub.restore();
+        spyUserRepositoryFindOneByEmail.restore();
+        spyUserRepositoryUpdateStatus.restore();
     });
 });
