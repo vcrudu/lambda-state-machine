@@ -2,6 +2,7 @@
  * Created by victorcrudu on 09/05/2016.
  */
 import Action from './action'
+import ActionAppointmentBooked from './actionAppointmentBooked';
 import awsFactory from '../awsFactory';
 
 class ActionFactory{
@@ -21,8 +22,8 @@ export default new ActionFactory([
     new Action('ActionSendInformDevicesAvailable',awsFactory.getSnsClient()),
     new Action('ActionSendInformCanMakeAppointments',awsFactory.getSnsClient()),
     new Action('ActionSendInformProvideDetails',awsFactory.getSnsClient()),
-    new Action('ActionSendPatientAppointmentBookedNotification',awsFactory.getSnsClient()),
-    new Action('ActionSendProviderAppointmentBookedNotification',awsFactory.getSnsClient()),
+    new ActionAppointmentBooked('ActionSendPatientAppointmentBookedNotification',awsFactory.getSnsClient()),
+    new ActionAppointmentBooked('ActionSendProviderAppointmentBookedNotification',awsFactory.getSnsClient()),
     new Action('ActionSendDevicesOrderedNotification',awsFactory.getSnsClient()),
     new Action('ActionSendDevicesDispatchedNotification',awsFactory.getSnsClient()),
     new Action('ActionSendInstallDevicesNotification',awsFactory.getSnsClient()),

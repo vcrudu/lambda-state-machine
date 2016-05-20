@@ -4,25 +4,11 @@
  
 import awsFactory from '../awsFactory';
 import repositoriesFactory from '../repositories/repositoriesFactory';
+import Action from './action';
 
-class Action {
+class ActionAppointmentBooked extends Action{
     constructor(name, notificationTemplateName, snsClient) {
-        this._name = name;
-        this._notificationTemplateName = notificationTemplateName;
-        this._snsClient = snsClient;
-        this._appEndpoint = 'arn:aws:sns:eu-west-1:160466482332:app/GCM/trichrome_health_monitor';
-    }
-
-    getName() {
-        return this._name;
-    }
-
-    getSnsClient() {
-        return this._snsClient;
-    }
-
-    setName(name) {
-        this._name = name;
+        super(name, notificationTemplateName, snsClient);
     }
 
     //{{userTitle}} {{userFullName}} {{providerTitle}} {{providerFullName}} {{userTitle}} {{userFullName}} {{time}} on {{date}}
@@ -70,4 +56,4 @@ class Action {
     }
 }
 
-export default Action;
+export default ActionAppointmentBooked;

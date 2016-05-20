@@ -6,7 +6,8 @@
       "target": "StateWelcomed"
     }],
     "actions": [{
-      "name": "ActionSendWelcomeNotification"
+      "name": "ActionSendWelcomeNotification",
+      "notificationTemplate":"welcomeMessage"
     }]
   },
   "states": [
@@ -17,7 +18,8 @@
         "target": "StateWelcomed"
       }],
       "actions": [{
-        "name": "ActionSendWelcomeNotification"
+        "name": "ActionSendWelcomeNotification",
+        "notificationTemplate":"welcomeMessage"
       }]
     },
     {
@@ -27,7 +29,8 @@
         "target": "StateInformedDevicesAvailable"
       }],
       "actions": [{
-        "name": "ActionSendInformDevicesAvailable"
+        "name": "ActionSendInformDevicesAvailable",
+        "notificationTemplate":"devicesAvailable"
       }]
     },
     {
@@ -37,7 +40,8 @@
         "target": "StateInformedCanMakeAppointments"
       }],
       "actions": [{
-        "name": "ActionSendInformCanMakeAppointments"
+        "name": "ActionSendInformCanMakeAppointments",
+        "notificationTemplate":"canMakeAppointment"
       }]
     },
     {
@@ -47,7 +51,8 @@
         "target": "StateAwaitingProvideDetails"
       }],
       "actions": [{
-        "name": "ActionSendInformProvideDetails"
+        "name": "ActionSendInformProvideDetails",
+        "notificationTemplate":"provideDetails"
       }]
     },
     {
@@ -80,10 +85,12 @@
         "target": "StateInformedNotificationSoon"
       }],
       "actions": [{
-        "name": "ActionSendPatientAppointmentBookedNotification"
+        "name": "ActionSendPatientAppointmentBookedNotification",
+        "notificationTemplate":"patientAppointmentBooked"
       },
        {
-        "name": "ActionSendProviderAppointmentBookedNotification"
+        "name": "ActionSendProviderAppointmentBookedNotification",
+         "notificationTemplate":"providerAppointmentBooked"
       }]
     },
     {
@@ -101,7 +108,8 @@
         "target": "StateDevicesDispatched"
       }],
       "actions": [{
-        "name": "ActionSendDevicesOrderedNotification"
+        "name": "ActionSendDevicesOrderedNotification",
+        "notificationTemplate":"devicesOrdered"
       }]
     },
     {
@@ -111,7 +119,8 @@
         "target": "StateDevicesDelivered"
       }],
       "actions": [{
-        "name": "ActionSendDevicesDispatchedNotification"
+        "name": "ActionSendDevicesDispatchedNotification",
+        "notificationTemplate":"devicesDispatched"
       }]
     },
     {
@@ -121,7 +130,8 @@
         "target": "StateWaitingMeasurement"
       }],
         "actions":[{
-          "name":"ActionSendInstallDevicesNotification"
+          "name":"ActionSendInstallDevicesNotification",
+          "notificationTemplate":"installDevices"
         }]
     },
     {
@@ -131,7 +141,8 @@
         "target":"StateIdle"
       }],
       "actions":[{
-        "name":"ActionSendTakeMeasurementNotification"
+        "name":"ActionSendTakeMeasurementNotification",
+        "notificationTemplate":"takeMeasurement"
       }]
     }
   ]

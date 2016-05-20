@@ -28,7 +28,7 @@ class StateMachine {
 
                     let startState = this._statesManager.getStartState();
 
-                    this._statesManager.runStateActions(startState.getStateName(), user, callback);
+                    this._statesManager.runStateActions(startState.getStateName(), user, event, callback);
                 });
             } else {
                 if (this._statesManager.isTransitionValid(event.name, user.userState)) {
@@ -39,7 +39,7 @@ class StateMachine {
                             if (err) {
                                 callback(new Error('Error updating the user state!'));
                             } else {
-                                this._statesManager.runStateActions(nextStateName, user, callback);
+                                this._statesManager.runStateActions(nextStateName, user, event, callback);
                             }
                         });
                     } else callback(new Error('Target state '+ nextStateName +' is not valid state for event '+event.name+' from current' +

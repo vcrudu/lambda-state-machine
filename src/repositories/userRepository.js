@@ -2,7 +2,7 @@
  * Created by victorcrudu on 07/05/2016.
  */
 
-import loggerProvider from './logging';
+import loggerProvider from '../logging';
 const  TABLE_NAME        = 'User';
 
 class UserRepository {

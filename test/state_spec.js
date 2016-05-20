@@ -83,7 +83,7 @@ describe('State class',()=> {
             getActionStub.withArgs("ActionTest2").returns(action2);
 
             let state = new State(stateConfig, actionFactory);
-            state.runStateActions({}, ()=>{
+            state.runStateActions({}, {}, ()=>{
                 expect(action1DoStub.called).to.be.true;
                 expect(action2DoStub.called).to.be.true;
                 getActionStub.restore();
@@ -117,7 +117,7 @@ describe('State class',()=> {
             getActionStub.withArgs("ActionTest2").returns(action2);
 
             let state = new State(stateConfig, actionFactory);
-            state.runStateActions({}, (arg1, arg2)=>{
+            state.runStateActions({}, {}, (arg1, arg2)=>{
                 expect(arg1).to.be.undefined;
                 expect(arg2).to.be.undefined;
                 getActionStub.restore();

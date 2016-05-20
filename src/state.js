@@ -36,14 +36,14 @@ class State{
         return result;
     }
 
-    runStateActions(user, callback) {
+    runStateActions(user, event, callback) {
 
         let observable = Rx.Observable.create((observer)=> {
             if(this._stateConfig.actions.length===0) observer.onCompleted();
             let n = 1;
             _.forEach(this._stateConfig.actions,  (action)=> {
                 let actionObject = this._actionFactory.getAction(action.name);
-                actionObject.do(user.email,  (err)=> {
+                actionObject.do(user.email, event, (err)=> {
                     if (err){
                         observer.onError(err);
                         return;

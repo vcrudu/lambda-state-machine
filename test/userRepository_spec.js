@@ -3,7 +3,7 @@
  */
 import chai from 'chai';
 import sinon from 'sinon';
-import UserRepository from '../src/userRepository';
+import UserRepository from '../src/repositories/userRepository';
 import awsFactory from '../src/awsFactory';
 
 describe('userRepository',()=> {
