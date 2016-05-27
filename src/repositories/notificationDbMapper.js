@@ -14,7 +14,8 @@ class NotificationDbMapper {
             title: {S: notification.title},
             type: {S: notification.type},
             category: {S: notification.category},
-            userId: {S: notification.userId}
+            userId: {S: notification.userId},
+            read:{BOOL:false}
         };
 
     }

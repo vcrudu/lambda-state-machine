@@ -25,6 +25,7 @@ class UserRepository {
             return {
                 email: dbEntity.email.S,
                 name: dbEntity.name.S,
+                surname : dbEntity.surname.S,
                 userState: dbEntity.userState?dbEntity.userState.S:undefined
             };
         };
@@ -45,16 +46,16 @@ class UserRepository {
         });
     }
 
-    updateState(userId, status, callback) {
+    updateState(userId, userState, callback) {
 
         var params = {
             Key: {email: {S: userId}},
             TableName: TABLE_NAME,
             ExpressionAttributeValues: {
-                ":status": {"S": status},
+                ":userState": {"S": userState},
             },
             ReturnConsumedCapacity: 'TOTAL',
-            UpdateExpression: 'SET userStatus=:status'
+            UpdateExpression: 'SET userState=:userState'
         };
 
         this._dynamoDb.updateItem(params, function (err, data) {

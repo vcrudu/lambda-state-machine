@@ -2,8 +2,8 @@
  * Created by victorcrudu on 06/05/2016.
  */
 
-import StatesManager from './statesManager'
 import fs from 'fs';
+import logging from './logging';
 
 class ConfigManager {
     static getStateMachineConfig(s3Client, callback) {
@@ -15,11 +15,16 @@ class ConfigManager {
 
         s3Client.getObject(s3params, function (err, data) {
 
-            let s3Content = data.Body.toString();
-            let stateMachine = JSON.parse(s3Content);
+            if (err) {
+                logging.getLogger().error(err);
+                callback(err);
+            } else {
 
-            callback(new StatesManager(stateMachine));
+                let s3Content = data.Body.toString();
+                let stateMachine = JSON.parse(s3Content);
 
+                callback(null, stateMachine);
+            }
         });
     }
 

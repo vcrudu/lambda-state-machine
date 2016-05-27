@@ -4,7 +4,7 @@
 
     import loggerProvider  from '../logging';
     import awsFactory from '../awsFactory';
-    const TABLE_NAME = 'Notification';
+    const TABLE_NAME = 'NotificationTemplate';
 
     var getDb = function(){
 

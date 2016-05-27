@@ -4,7 +4,6 @@
 
 
 import chai from 'chai';
-import sinon from 'sinon';
 import StatesManager from '../src/statesManager';
 import State from '../src/state';
 import actionFactory from '../src/actions/actionFactory';
@@ -119,16 +118,20 @@ describe('StatesManager class',()=> {
 
             var stateMachineConfig = {
                 start: {
-                    name:"startState",
-                    transitions:[]
+                    name: "startState",
+                    transitions: []
                 },
                 states: [{
-                    name: "test",
-                    transitions: [{
-                        trigger: "OnTest",
-                        target: "NextState"
-                    }]
+                    name: "startState",
+                    transitions: []
                 },
+                    {
+                        name: "test",
+                        transitions: [{
+                            trigger: "OnTest",
+                            target: "NextState"
+                        }]
+                    },
                     {
                         name: "NextState",
                         transitions: []
@@ -137,7 +140,7 @@ describe('StatesManager class',()=> {
 
             var statesManager = new StatesManager(stateMachineConfig);
 
-            var result = statesManager.isTransitionValid("OnTest", stateMachineConfig.states[0].name);
+            var result = statesManager.isTransitionValid("OnTest", stateMachineConfig.states[1].name);
             expect(result).to.be.true;
 
         });
@@ -177,8 +180,8 @@ describe('StatesManager class',()=> {
 
             var stateMachineConfig = {
                 start: {
-                    name:"startState",
-                    transitions:[]
+                    name: "startState",
+                    transitions: []
                 },
                 states: [{
                     name: "test",

@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "bunyan": "^1.8.1",
+    "moment": "^2.13.0",
     "rx": "^4.1.0",
     "underscore": "^1.8.3"
   }

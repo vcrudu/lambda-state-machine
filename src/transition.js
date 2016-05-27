@@ -4,46 +4,35 @@
 import _ from 'underscore';
 import assert from 'assert';
 import Rx from 'rx';
-import Transition from './transition';
+import logging from './logging';
 
-class State {
-    constructor(stateConfig, actionFactory) {
-        assert(stateConfig.transitions, "Invalid state config!");
-        this._stateConfig = stateConfig;
+class Transition {
+    constructor(transitionConfig, actionFactory) {
+        assert(transitionConfig.trigger, "Invalid transition config!");
+        assert(transitionConfig.target, "Invalid transition config!");
+        this._transitionConfig = transitionConfig;
         this._actionFactory = actionFactory;
     }
 
-    getStateName() {
-        return this._stateConfig.name;
+    getTrigger() {
+        return this._transitionConfig.trigger;
     }
 
-    getStateConfig() {
-        return this._stateConfig;
+    getTarget() {
+        return this._transitionConfig.target;
     }
 
-    getNextStateName(eventName) {
-        var result = _.find(this._stateConfig.transitions, function (transition) {
-            return transition.trigger === eventName;
-        });
-
-        return result ? result.target : null;
+    getTransitionConfig() {
+        return this._transitionConfig;
     }
 
-    getTransition(eventName) {
-        var result = _.find(this._stateConfig.transitions, function (transition) {
-            return transition.trigger === eventName;
-        });
-
-        return result ? new Transition(result, this._actionFactory) : null;
-    }
-
-    runStateActions(user, event, callback) {
+    runTransitionActions(user, event, callback) {
 
         let observable = Rx.Observable.create((observer)=> {
 
-            if (this._stateConfig.actions.length === 0) observer.onCompleted();
+            if (!this._transitionConfig.actions || this._transitionConfig.actions.length === 0) observer.onCompleted();
             let n = 1;
-            _.forEach(this._stateConfig.actions, (action)=> {
+            _.forEach(this._transitionConfig.actions, (action)=> {
                 let actionObject = this._actionFactory.getAction(action.name, event, action.period, action.offset);
                 if (actionObject) {
                     actionObject.do(user.email, event, (err)=> {
@@ -51,16 +40,18 @@ class State {
                             observer.onError(err);
                             return;
                         }
-                        if (n < this._stateConfig.actions.length) {
+                        logging.getLogger().info('Transition action ' + action.name + 'of the trigger '+ this._transitionConfig.trigger + ' has executed successfully.');
+                        if (n < this._transitionConfig.actions.length) {
                             observer.onNext();
                         } else {
+                            logging.getLogger().info('All the actions for the transition '+this._transitionConfig.trigger+' has executed successfully.');
                             observer.onCompleted();
                             return;
                         }
                         n++;
                     });
                 } else {
-                    if (n < this._stateConfig.actions.length) {
+                    if (n < this._transitionConfig.actions.length) {
                         observer.onNext();
                     } else {
                         observer.onCompleted();
@@ -80,4 +71,4 @@ class State {
     }
 }
 
-export default State;
+export default Transition;

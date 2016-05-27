@@ -5,6 +5,7 @@ import UserRepository from './userRepository';
 import UserDetailsRepository from './userDetailsRepository';
 import NotificationsRepository from './notificationsRepository';
 import NotificationTemplatesRepository from './notificationTemplatesRepository';
+import SnsEndpointsRepository from './snsEndpointsRepository'
 
 
 class RepositoriesManager {
@@ -19,9 +20,7 @@ class RepositoriesManager {
     getUserDetailsRepository(dynamoDb){
         return new UserDetailsRepository(dynamoDb);
     }
-
-
-
+    
     getNotificationsRepository(dynamoDb){
         return new NotificationsRepository(dynamoDb);
     }
@@ -29,6 +28,12 @@ class RepositoriesManager {
     getNotificationTemplatesRepository(dynamoDb){
         return new NotificationTemplatesRepository(dynamoDb);
     }
+
+    getSnsEndpointsRepository(dynamoDb){
+        return new SnsEndpointsRepository(dynamoDb);
+    }
+
+    
 }
 
 export default new RepositoriesManager();

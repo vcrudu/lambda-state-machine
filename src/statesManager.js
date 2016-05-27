@@ -48,7 +48,7 @@ class StatesManager {
         let transition = currentState.getTransition(eventName);
         if (transition) {
             let result = _.find(this._stateMachineConfig.states, function (aState) {
-                return aState.name === transition.target;
+                return aState.name === transition.getTarget();
             });
             return result ? true : false;
         } else {
@@ -61,6 +61,14 @@ class StatesManager {
         let state = this.getState(name);
         state.runStateActions(user, event, callback);
         
+    }
+
+    runTransitionActions(stateName, trigger, user, event, callback) {
+
+        let state = this.getState(stateName);
+        let transition = state.getTransition(trigger);
+        transition.runTransitionActions(user, event, callback);
+
     }
 }
 

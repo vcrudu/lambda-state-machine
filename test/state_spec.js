@@ -50,7 +50,7 @@ describe('State class',()=> {
             expect(state).to.be.ok;
 
             var transition = state.getTransition(stateConfig.transitions[0].trigger);
-            expect(transition.trigger).to.be.equal(stateConfig.transitions[0].trigger);
+            expect(transition.getTrigger()).to.be.equal(stateConfig.transitions[0].trigger);
 
         });
     });

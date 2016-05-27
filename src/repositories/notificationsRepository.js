@@ -5,6 +5,7 @@
 import loggerProvider from '../logging';
 import NotificationDbMapper from './notificationDbMapper';
 import _ from 'underscore';
+import util from 'util';
 const TABLE_NAME = 'Notification';
 
     class NotificationsRepository {
@@ -110,6 +111,8 @@ const TABLE_NAME = 'Notification';
                 ReturnItemCollectionMetrics: 'SIZE',
                 ReturnValues: 'ALL_OLD'
             };
+
+            console.log(util.inspect(params.Item, true, 2));
 
             this._dynamoDb.putItem(params, function (err, data) {
                 if (err) {

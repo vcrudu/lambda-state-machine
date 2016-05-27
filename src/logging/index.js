@@ -10,35 +10,35 @@
         accessKeyId:'AKIAI3IGUJPNNVRFFMDA',
         secretAccessKey:'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',
         logGroupName: 'hcm',
-        logStreamName: 'hcm.registration',
+        logStreamName: 'hcm.patient.lambda',
         region: 'eu-west-1'
     });
 
     var defaultLogger = bunyan.createLogger({
-        name: 'hcm.registration',
+        name: 'hcm.patient.lambda',
         streams: [
-            {
-                level: 'error',
+            /*{
+                level: 'debug',
                 stream: process.stdout            // log INFO and above to stdout
-            },
+            },*/
             {
-                level: 'error',
+                level: 'trace',
                 stream: streamCW            // log INFO and above to stdout
-            },
+            }/*,
             {
             level: 'error',
             type: 'rotating-file',
             path: './log/hcm.log',
             period: '1d',   // daily rotation
             count: 3        // keep 3 back copies
-        }]
+        }*/]
     });
 
     var localLogger = bunyan.createLogger({
-        name: 'hcm.registration.local',
+        name: 'hcm.patient.lambda.local',
         streams: [
             {
-                level: 'error',
+                level: 'info',
                 type: 'rotating-file',
                 path: './log/hcm.log',
                 period: '1d',   // daily rotation
