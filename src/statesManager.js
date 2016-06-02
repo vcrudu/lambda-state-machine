@@ -56,10 +56,10 @@ class StatesManager {
         }
     }
 
-    runStateActions(name, user, event, callback) {
+    runStateActions(name, event, callback) {
 
         let state = this.getState(name);
-        state.runStateActions(user, event, callback);
+        state.runStateActions(event, callback);
         
     }
 

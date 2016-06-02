@@ -36,14 +36,10 @@
 
     var localLogger = bunyan.createLogger({
         name: 'hcm.patient.lambda.local',
-        streams: [
-            {
-                level: 'info',
-                type: 'rotating-file',
-                path: './log/hcm.log',
-                period: '1d',   // daily rotation
-                count: 3        // keep 3 back copies
-            }]
+        streams: [{
+             level: 'debug',
+             stream: process.stdout            // log INFO and above to stdout
+             }]
     });
 
     function getIncidentTicketNumber(componentCode) {

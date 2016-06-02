@@ -27,8 +27,7 @@ class Action {
         this._name = name;
     }
 
-    do(userId, event, callback) {
-
+    execAction(userId, event, callback) {
         function instantiateParameters(parametrizedString, bundle) {
             return parametrizedString
                 .replace('{{userTitle}}', bundle.userTitle)
@@ -52,7 +51,7 @@ class Action {
                             if (!err) {
 
                                 let instanceBudle = {
-                                    userTitle: userDetails&&userDetails.title?userDetails.title:"",
+                                    userTitle: userDetails && userDetails.title ? userDetails.title : "",
                                     userFullName: user.name + ' ' + user.surname,
                                     providerTitle: event.payload.providerTitle,
                                     providerFullName: event.payload.providerFullName,
@@ -70,16 +69,25 @@ class Action {
                                     imageLink: notificationTemplate.imageLink ? notificationTemplate.imageLink : 'https://s3-eu-west-1.amazonaws.com/trichrome/public/default.png',
                                     read: false,
                                     type: notificationTemplate.templateName,
-                                    defaultAction:'openMessage'
+                                    defaultAction: 'openMessage'
                                 };
+
+                                if (notificationTemplate.content.includes('{{providerFullName}}') && !event.payload.providerId) {
+                                    callback(new Error('The provider was not specified!'));
+                                    return;
+                                }
 
                                 notificationsRepository.save(notification, (err)=> {
                                     if (!err) {
                                         let snsEndpointsRepository = repositoriesFactory.getSnsEndpointsRepository(awsFactory.getDb());
 
                                         snsEndpointsRepository.getList(userId, (err, snsEndpoints)=> {
+                                            if(!snsEndpoints || snsEndpoints.length==0) {
+                                                callback();
+                                                return;
+                                            }
                                             let countOfProcessedEndpoints = 0;
-                                                _.forEach(snsEndpoints, (snsEndpoint)=> {
+                                            _.forEach(snsEndpoints, (snsEndpoint)=> {
                                                 var params = {
                                                     Message: JSON.stringify({
                                                         userId: userId,
@@ -95,13 +103,13 @@ class Action {
                                                     TargetArn: snsEndpoint.endpointArn
                                                 };
                                                 this._snsClient.publish(params, function (err, data) {
-                                                    if(!err){
+                                                    if (!err) {
                                                         loggerProvider.getLogger().info("Successfully sent the notification to " + userId + "for endpoint " + snsEndpoint.endpointArn);
                                                     } else {
                                                         loggerProvider.getLogger().error("Failed to send the notification to " + userId + " for endpoint " + snsEndpoint.endpointArn);
                                                     }
                                                     countOfProcessedEndpoints++;
-                                                    if(countOfProcessedEndpoints==snsEndpoints.length){
+                                                    if (countOfProcessedEndpoints == snsEndpoints.length) {
                                                         callback(err, data);
                                                     }
                                                 });
@@ -123,6 +131,10 @@ class Action {
                 callback(err);
             }
         });
+    }
+
+    do(event, callback) {
+        this.execAction(event.payload.userId, event, callback);
     }
 }
 

@@ -132,7 +132,16 @@
           "target": "StateIdle"
         }
       ],
-      "actions": []
+      "actions": [
+        {
+          "name": "ActionSendPatientOneMinuteRemainedNotification",
+          "notificationTemplate": "patientOneMinuteRemained"
+        },
+        {
+          "name": "ActionSendProviderOneMinuteRemainedNotification",
+          "notificationTemplate": "providerOneMinuteRemained"
+        }
+      ]
     },
     {
       "name": "StateDevicesOrdered",
@@ -188,7 +197,7 @@
           "actions":[
             {
               "name": "ActionScheduleAdviseTakeMeasurement",
-              "offset":86400
+              "offset":300
             }
           ]
         }

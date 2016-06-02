@@ -5,6 +5,7 @@ import _ from 'underscore';
 import assert from 'assert';
 import Rx from 'rx';
 import Transition from './transition';
+import logging from './logging';
 
 class State {
     constructor(stateConfig, actionFactory) {
@@ -37,21 +38,24 @@ class State {
         return result ? new Transition(result, this._actionFactory) : null;
     }
 
-    runStateActions(user, event, callback) {
+    runStateActions(event, callback) {
 
         let observable = Rx.Observable.create((observer)=> {
 
-            if (this._stateConfig.actions.length === 0) observer.onCompleted();
+            if (!this._stateConfig.actions || this._stateConfig.actions.length === 0) observer.onCompleted();
             let n = 1;
             _.forEach(this._stateConfig.actions, (action)=> {
                 let actionObject = this._actionFactory.getAction(action.name, event, action.period, action.offset);
                 if (actionObject) {
-                    actionObject.do(user.email, event, (err)=> {
+                    actionObject.do(event, (err)=> {
                         if (err) {
+                            logging.getLogger().error(err);
+                            logging.getLogger().error(new Error("The action " + action.name + "has failed to execute!"));
                             observer.onError(err);
                             return;
                         }
                         if (n < this._stateConfig.actions.length) {
+                            logging.getLogger().info("The action " + action.name + "has been executed successfully!");
                             observer.onNext();
                         } else {
                             observer.onCompleted();

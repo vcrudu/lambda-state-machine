@@ -4,6 +4,9 @@
 import Action from './action'
 import ActionScheduleOneTimeEvent from './actionScheduleOneTimeEvent';
 import awsFactory from '../awsFactory';
+import ActionSendProviderAppointmentBookedNotification from './actionSendProviderAppointmentBookedNotification';
+import ActionSendPatientAppointmentBookedNotification from './actionSendPatientAppointmentBookedNotification';
+
 
 class ActionFactory {
     constructor(actions) {
@@ -21,7 +24,23 @@ class ActionFactory {
             }
             case 'ActionScheduleAdviseTakeMeasurement':
             {
-                new ActionScheduleOneTimeEvent('ActionScheduleAdviseTakeMeasurement','OnMeasurementExpected', null, period);
+                return new ActionScheduleOneTimeEvent('ActionScheduleAdviseTakeMeasurement', 'OnMeasurementExpected', null, offset);
+            }
+            case 'ActionSendProviderAppointmentBookedNotification':
+            {
+                return new ActionSendProviderAppointmentBookedNotification('ActionSendProviderAppointmentBookedNotification', 'providerAppointmentBooked', awsFactory.getSnsClient());
+            }
+            case 'ActionSendPatientAppointmentBookedNotification':
+            {
+                return new ActionSendPatientAppointmentBookedNotification('ActionSendPatientAppointmentBookedNotification', 'patientAppointmentBooked', awsFactory.getSnsClient());
+            }
+            case 'ActionSendProviderOneMinuteRemainedNotification':
+            {
+                return new ActionSendProviderAppointmentBookedNotification('ActionSendProviderOneMinuteRemainedNotification', 'providerOneMinuteRemained', awsFactory.getSnsClient());
+            }
+            case 'ActionSendPatientOneMinuteRemainedNotification':
+            {
+                return new ActionSendPatientAppointmentBookedNotification('ActionSendPatientOneMinuteRemainedNotification', 'patientOneMinuteRemained', awsFactory.getSnsClient());
             }
             default:
                 return this._actions[name];
@@ -34,8 +53,6 @@ export default new ActionFactory([
     new Action('ActionSendInformDevicesAvailable','devicesAvailable', awsFactory.getSnsClient()),
     new Action('ActionSendInformCanMakeAppointments','canMakeAppointment' ,awsFactory.getSnsClient()),
     new Action('ActionSendInformProvideDetails','provideDetails', awsFactory.getSnsClient()),
-    new Action('ActionSendPatientAppointmentBookedNotification','patientAppointmentBooked',awsFactory.getSnsClient()),
-    new Action('ActionSendProviderAppointmentBookedNotification','providerAppointmentBooked', awsFactory.getSnsClient()),
     new Action('ActionSendDevicesOrderedNotification','devicesOrdered', awsFactory.getSnsClient()),
     new Action('ActionSendDevicesDispatchedNotification','devicesDispatched', awsFactory.getSnsClient()),
     new Action('ActionSendInstallDevicesNotification','installDevices',awsFactory.getSnsClient()),

@@ -11,14 +11,10 @@ module.exports = createCloudWatchStream;
 
 var localLogger = bunyan.createLogger({
     name: 'hcm.registration.local',
-    streams: [
-        {
-            level: 'trace',
-            type: 'rotating-file',
-            path: './log/hcm.local.log',
-            period: '1d',   // daily rotation
-            count: 3        // keep 3 back copies
-        }]
+    streams: [{
+         level: 'debug',
+         stream: process.stdout            // log INFO and above to stdout
+         }]
 });
 
 function createCloudWatchStream(opts) {
