@@ -20,7 +20,7 @@ describe('actionScheduleEvent',()=> {
                 appointmentDateTime: appointmentDateTime
             }
         };
-        actionScheduleEvent.do(userId, event, (err)=> {
+        actionScheduleEvent.do(event, (err)=> {
             expect(err).to.be.null;
         });
     });

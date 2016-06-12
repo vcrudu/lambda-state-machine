@@ -16,62 +16,107 @@
   },
   "states": [
     {
-      "name": "StateUnreadWelcome",
+      "name": "default",
       "transitions": [
         {
           "trigger": "OnReadWelcome",
           "target": "StateWelcomed"
+        },
+        {
+          "trigger": "OnReadInformProvideDetails",
+          "target": "StateAwaitingProvideDetails"
+        },
+        {
+          "trigger": "OnProvideDetails",
+          "target": "StateDetailsProvided"
+        },
+        {
+          "trigger": "OnReadInformDevicesAvailable",
+          "target": "StateInformedDevicesAvailable"
+        },
+        {
+          "trigger": "OnReadInformCanMakeAppointments",
+          "target": "StateIdle"
+        },
+        {
+          "trigger": "OnAppointmentBooking",
+          "target": "StateAppointmentBooked"
+        },
+        {
+          "trigger": "OnDevicesOrdering",
+          "target": "StateDevicesOrdered"
+        },
+        {
+          "trigger": "OnMeasurementExpected",
+          "target": "StateWaitingMeasurement"
+        },
+        {
+          "trigger": "OnAlarm",
+          "target": "StateAlarmed"
+        },
+        {
+          "trigger": "OnOneMinuteRemained",
+          "target": "StateInformedNotificationSoon"
+        },
+        {
+          "trigger": "OnReadNotificationSoon",
+          "target": "StateIdle"
+        },
+        {
+          "trigger": "OnDevicesDispatching",
+          "target": "StateDevicesDispatched"
+        },
+        {
+          "trigger": "OnDevicesDelivering",
+          "target": "StateDevicesDelivered"
+        },
+        {
+          "trigger": "OnDevicesInstalled",
+          "target": "StateWaitingMeasurement"
+        },
+        {
+          "trigger": "OnMeasurementReceived",
+          "target": "StateIdle",
+          "actions": [
+            {
+              "name": "ActionScheduleAdviseTakeMeasurement",
+              "offset": 300
+            }
+          ]
+        },
+        {
+          "trigger": "OnAlarmClosed",
+          "target": "StateIdle"
         }
-      ],
+      ]
+    },
+    {
+      "name": "StateUnreadWelcome",
       "actions": [
         {
           "name": "ActionSendWelcomeNotification",
           "notificationTemplate": "welcomeMessage"
         }
+      ],
+      "transitions": [
+        {
+          "trigger": "OnReadWelcome",
+          "target": "StateWelcomed"
+        }
       ]
     },
     {
       "name": "StateWelcomed",
-      "transitions": [
-        {
-          "trigger": "OnReadInformDevicesAvailable",
-          "target": "StateInformedDevicesAvailable"
-        }
-      ],
-      "actions": [
-        {
-          "name": "ActionSendInformDevicesAvailable",
-          "notificationTemplate": "devicesAvailable"
-        }
-      ]
-    },
-    {
-      "name": "StateInformedDevicesAvailable",
-      "transitions": [
-        {
-          "trigger": "OnReadInformCanMakeAppointments",
-          "target": "StateInformedCanMakeAppointments"
-        }
-      ],
-      "actions": [
-        {
-          "name": "ActionSendInformCanMakeAppointments",
-          "notificationTemplate": "canMakeAppointment"
-        }
-      ]
-    },
-    {
-      "name": "StateInformedCanMakeAppointments",
-      "transitions": [
-        {
-          "trigger": "OnReadInformProvideDetails",
-          "target": "StateAwaitingProvideDetails"
-        }
-      ],
       "actions": [
         {
           "name": "ActionSendInformProvideDetails",
           "notificationTemplate": "provideDetails"
+        }
+      ],
+      "transitions": [
+        {
+          "trigger": "OnReadInformProvideDetails",
+          "target": "StateAwaitingProvideDetails"
         }
       ]
     },
@@ -80,6 +125,36 @@
       "transitions": [
         {
           "trigger": "OnProvideDetails",
+          "target": "StateDetailsProvided"
+        }
+      ]
+    },
+    {
+      "name": "StateDetailsProvided",
+      "actions": [
+        {
+          "name": "ActionSendInformDevicesAvailable",
+          "notificationTemplate": "devicesAvailable"
+        }
+      ],
+      "transitions": [
+        {
+          "trigger": "OnReadInformDevicesAvailable",
+          "target": "StateInformedDevicesAvailable"
+        }
+      ]
+    },
+    {
+      "name": "StateInformedDevicesAvailable",
+      "actions": [
+        {
+          "name": "ActionSendInformCanMakeAppointments",
+          "notificationTemplate": "canMakeAppointment"
+        }
+      ],
+      "transitions": [
+        {
+          "trigger": "OnReadInformCanMakeAppointments",
           "target": "StateIdle"
         }
       ]
@@ -98,17 +173,19 @@
         {
           "trigger": "OnMeasurementExpected",
           "target": "StateWaitingMeasurement"
+        },
+        {
+          "trigger": "OnAlarm",
+          "target": "StateAlarmed"
+        },
+        {
+          "trigger": "OnOneMinuteRemained",
+          "target": "StateInformedNotificationSoon"
         }
       ]
     },
     {
       "name": "StateAppointmentBooked",
-      "transitions": [
-        {
-          "trigger": "OnOneMinuteRemained",
-          "target": "StateInformedNotificationSoon"
-        }
-      ],
       "actions": [
         {
           "name": "ActionSendPatientAppointmentBookedNotification",
@@ -120,18 +197,26 @@
         },
         {
           "name": "ActionScheduleOnOneMinuteRemained",
-          "offset":-60
+          "offset": -60
+        }
+      ],
+      "transitions": [
+        {
+          "trigger": "OnOneMinuteRemained",
+          "target": "StateInformedNotificationSoon"
+        },
+        {
+          "trigger": "OnAppointmentBooking",
+          "target": "StateAppointmentBooked"
+        },
+        {
+          "trigger": "OnMeasurementExpected",
+          "target": "StateWaitingMeasurement"
         }
       ]
     },
     {
       "name": "StateInformedNotificationSoon",
-      "transitions": [
-        {
-          "trigger": "OnReadNotificationSoon",
-          "target": "StateIdle"
-        }
-      ],
       "actions": [
         {
           "name": "ActionSendPatientOneMinuteRemainedNotification",
@@ -141,71 +226,92 @@
           "name": "ActionSendProviderOneMinuteRemainedNotification",
           "notificationTemplate": "providerOneMinuteRemained"
         }
+      ],
+      "transitions": [
+        {
+          "trigger": "OnReadNotificationSoon",
+          "target": "StateIdle"
+        }
       ]
     },
     {
       "name": "StateDevicesOrdered",
-      "transitions": [
-        {
-          "trigger": "OnDevicesDispatching",
-          "target": "StateDevicesDispatched"
-        }
-      ],
       "actions": [
         {
           "name": "ActionSendDevicesOrderedNotification",
           "notificationTemplate": "devicesOrdered"
         }
+      ],
+      "transitions": [
+        {
+          "trigger": "OnDevicesDispatching",
+          "target": "StateDevicesDispatched"
+        }
       ]
     },
     {
       "name": "StateDevicesDispatched",
-      "transitions": [
-        {
-          "trigger": "OnDevicesDelivering",
-          "target": "StateDevicesDelivered"
-        }
-      ],
       "actions": [
         {
           "name": "ActionSendDevicesDispatchedNotification",
           "notificationTemplate": "devicesDispatched"
         }
+      ],
+      "transitions": [
+        {
+          "trigger": "OnDevicesDelivering",
+          "target": "StateDevicesDelivered"
+        }
       ]
     },
     {
       "name": "StateDevicesDelivered",
-      "transitions": [
-        {
-          "trigger": "OnDevicesInstalled",
-          "target": "StateWaitingMeasurement"
-        }
-      ],
       "actions": [
         {
           "name": "ActionSendInstallDevicesNotification",
           "notificationTemplate": "installDevices"
         }
+      ],
+      "transitions": [
+        {
+          "trigger": "OnDevicesInstalled",
+          "target": "StateWaitingMeasurement"
+        }
       ]
     },
     {
       "name": "StateWaitingMeasurement",
-      "transitions": [
-        {
-          "trigger": "OnMeasurementReceived",
-          "target": "StateIdle",
-          "actions":[
-            {
-              "name": "ActionScheduleAdviseTakeMeasurement",
-              "offset":300
-            }
-          ]
-        }
-      ],
       "actions": [
         {
           "name": "ActionSendTakeMeasurementNotification",
           "notificationTemplate": "takeMeasurement"
+        }
+      ],
+      "transitions": [
+        {
+          "trigger": "OnMeasurementReceived",
+          "target": "StateIdle",
+          "actions": [
+            {
+              "name": "ActionScheduleAdviseTakeMeasurement",
+              "offset": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "StateAlarmed",
+      "actions": [
+        {
+          "name": "ActionSendPatientAlarmNotification",
+          "notificationTemplate": "patientAlarm"
+        }
+      ],
+      "transitions": [
+        {
+          "trigger": "OnAlarmClosed",
+          "target": "StateIdle"
         }
       ]
     }

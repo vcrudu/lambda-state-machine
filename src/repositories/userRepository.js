@@ -20,17 +20,17 @@ class UserRepository {
             ReturnConsumedCapacity: 'TOTAL'
         };
 
-        let mapUserFromDbEntity = function(dbEntity) {
+        let mapUserFromDbEntity = function (dbEntity) {
 
             return {
                 email: dbEntity.email.S,
                 name: dbEntity.name.S,
-                surname : dbEntity.surname.S,
-                userState: dbEntity.userState?dbEntity.userState.S:undefined
+                surname: dbEntity.surname.S,
+                userState: dbEntity.userState ? dbEntity.userState.S : undefined
             };
         };
-
-        this._dynamoDb.getItem(params, function (err, data) {
+        
+        this._dynamoDb.getItem(params, (err, data) => {
             if (err) {
                 loggerProvider.getLogger().error(err);
                 callback(err, null, state);
@@ -41,6 +41,7 @@ class UserRepository {
                 var user = mapUserFromDbEntity(data.Item);
                 callback(null, user);
             } else {
+
                 callback(null, null);
             }
         });

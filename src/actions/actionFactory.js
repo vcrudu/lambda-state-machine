@@ -6,6 +6,9 @@ import ActionScheduleOneTimeEvent from './actionScheduleOneTimeEvent';
 import awsFactory from '../awsFactory';
 import ActionSendProviderAppointmentBookedNotification from './actionSendProviderAppointmentBookedNotification';
 import ActionSendPatientAppointmentBookedNotification from './actionSendPatientAppointmentBookedNotification';
+import ActionSendPatientAlarmNotification from './actionSendPatientAlarmNotification';
+import ActionSendMeasurementNotification from './actionSendMeasurementNotification';
+
 
 
 class ActionFactory {
@@ -41,6 +44,14 @@ class ActionFactory {
             case 'ActionSendPatientOneMinuteRemainedNotification':
             {
                 return new ActionSendPatientAppointmentBookedNotification('ActionSendPatientOneMinuteRemainedNotification', 'patientOneMinuteRemained', awsFactory.getSnsClient());
+            }
+            case 'ActionSendPatientAlarmNotification':
+            {
+                return new ActionSendPatientAlarmNotification(awsFactory.getSnsClient());
+            }
+            case 'ActionSendMeasurementNotification':
+            {
+                return new ActionSendMeasurementNotification(awsFactory.getSnsClient());
             }
             default:
                 return this._actions[name];

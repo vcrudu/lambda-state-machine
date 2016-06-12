@@ -115,7 +115,7 @@ describe('StateMachine',()=> {
             stateMachine.receiveEvent(event, function () {
                 expect(getStartStateStub.calledOnce).to.be.true;
                 expect(runStateActionsStub.calledOnce).to.be.true;
-                expect(runStateActionsStub.calledWith(stateName,user, event)).to.be.true;
+                expect(runStateActionsStub.calledWith(stateName, event)).to.be.true;
                 done();
             });
         });
@@ -141,7 +141,7 @@ describe('StateMachine',()=> {
                 expect(updateStateStub.calledOnce).to.be.true;
                 expect(runStateActionsStub.calledOnce).to.be.true;
                 expect(runTransitionActionsStub.calledOnce).to.be.true;
-                expect(runStateActionsStub.calledWith(stateName,user, event)).to.be.true;
+                expect(runStateActionsStub.calledWith(stateName, event)).to.be.true;
                 done();
             });
         });

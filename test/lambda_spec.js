@@ -4,7 +4,7 @@
 import chai from 'chai';
 import {main as lambda} from '../src/index';
 
-describe.only('lambda function',()=> {
+describe('lambda function',()=> {
     chai.should();
     describe('user has no status and send testMessage to lambda', ()=> {
         it('should invoke without errors and status should become StateUnreadWelcome', (done)=> {

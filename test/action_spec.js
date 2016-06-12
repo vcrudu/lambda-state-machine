@@ -125,10 +125,10 @@ describe('Action class',()=> {
             let testedAction = new Action('ActionSendWelcomeNotification', 'welcomeMessage', awsFactory.getSnsClient());
 
             let event = {
-                payload: {}
+                payload: {userId:'vcrudu@hotmail.com'}
             };
 
-            testedAction.do('vcrudu@hotmail.com', event, (err, data)=> {
+            testedAction.do(event, (err, data)=> {
                 expect(err).to.be.null;
                 expect(data).to.be.ok;
                 expect(getSnsClientPublishStub.calledOnce).to.be.true;
@@ -146,6 +146,7 @@ describe('Action class',()=> {
 
             let event = {
                 payload: {
+                    userId:'vcrudu@hotmail.com',
                     providerTitle: 'Dr.',
                     providerFullName: 'Martin Who',
                     providerType: 'Doctor',
@@ -153,7 +154,7 @@ describe('Action class',()=> {
                 }
             };
 
-            testedAction.do('vcrudu@hotmail.com', event, (err, data)=> {
+            testedAction.do(event, (err, data)=> {
                 expect(err).to.be.null;
                 expect(data).to.be.ok;
                 expect(getSnsClientPublishStub.calledOnce).to.be.true;

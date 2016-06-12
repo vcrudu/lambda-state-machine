@@ -43,41 +43,38 @@ class State {
         let observable = Rx.Observable.create((observer)=> {
 
             if (!this._stateConfig.actions || this._stateConfig.actions.length === 0) observer.onCompleted();
-            let n = 1;
+            let n = 0;
             _.forEach(this._stateConfig.actions, (action)=> {
                 let actionObject = this._actionFactory.getAction(action.name, event, action.period, action.offset);
                 if (actionObject) {
                     actionObject.do(event, (err)=> {
+                        n++;
                         if (err) {
                             logging.getLogger().error(err);
                             logging.getLogger().error(new Error("The action " + action.name + "has failed to execute!"));
-                            observer.onError(err);
-                            return;
-                        }
-                        if (n < this._stateConfig.actions.length) {
-                            logging.getLogger().info("The action " + action.name + "has been executed successfully!");
-                            observer.onNext();
                         } else {
-                            observer.onCompleted();
-                            return;
+                            logging.getLogger().info("The action " + action.name + "has been executed successfully!");
                         }
-                        n++;
+
+                        observer.onNext();
+
+                        if (n == this._stateConfig.actions.length) {
+                            observer.onCompleted();
+                        }
                     });
                 } else {
-                    if (n < this._stateConfig.actions.length) {
-                        observer.onNext();
-                    } else {
+                    n++;
+                    observer.onNext();
+                    if (n == this._stateConfig.actions.length) {
                         observer.onCompleted();
                         return;
                     }
-                    n++;
                 }
             });
         });
 
         observable.subscribe(()=> {
-        }, (err)=> {
-            callback(err);
+        }, ()=> {
         }, ()=> {
             callback();
         });
