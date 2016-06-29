@@ -5,6 +5,7 @@
 import awsFactory from '../awsFactory';
 import repositoriesFactory from '../repositories/repositoriesFactory';
 import moment from 'moment';
+import momenttz from 'moment-timezone';
 import _ from 'underscore';
 import loggerProvider from '../logging';
 
@@ -31,15 +32,15 @@ class Action {
         this._name = name;
     }
 
-    _instantiateParameters(parametrizedString, bundle) {
+    instantiateParameters(parametrizedString, bundle) {
         return parametrizedString
             .replace('{{userTitle}}', bundle.userTitle)
             .replace('{{userFullName}}', bundle.userFullName)
             .replace('{{providerTitle}}', bundle.providerTitle)
             .replace('{{providerFullName}}', bundle.providerFullName)
             .replace('{{providerType}}', bundle.providerType)
-            .replace('{{time}}', bundle.appointmentDateTime ? moment(bundle.appointmentDateTime).format('LT') : '')
-            .replace('{{date}}', bundle.appointmentDateTime ? moment(bundle.appointmentDateTime).format('LL') : '');
+            .replace('{{time}}', bundle.appointmentDateTime ? momenttz(bundle.appointmentDateTime).tz("Europe/London").format('LT') : '')
+            .replace('{{date}}', bundle.appointmentDateTime ? momenttz(bundle.appointmentDateTime).tz("Europe/London").format('LL') : '');
     }
 
     execAction(userId, event, callback) {
@@ -88,13 +89,14 @@ class Action {
             userId: user.email,
             dateTime: new Date().getTime(),
             category: notificationTemplate.category,
-            content: this._instantiateParameters(notificationTemplate.content, instanceBundle),
-            summary: this._instantiateParameters(notificationTemplate.summary, instanceBundle),
+            content: this.instantiateParameters(notificationTemplate.content, instanceBundle),
+            summary: this.instantiateParameters(notificationTemplate.summary, instanceBundle),
             title: notificationTemplate.title,
             imageLink: notificationTemplate.imageLink ? notificationTemplate.imageLink : 'https://s3-eu-west-1.amazonaws.com/trichrome/public/default.png',
             read: false,
             type: notificationTemplate.templateName,
-            defaultAction: 'openMessage'
+            defaultAction: 'openMessage',
+            responseAction: this._name
         };
         return notification;
     }

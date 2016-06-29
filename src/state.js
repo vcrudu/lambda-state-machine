@@ -43,6 +43,7 @@ class State {
         let observable = Rx.Observable.create((observer)=> {
 
             if (!this._stateConfig.actions || this._stateConfig.actions.length === 0) observer.onCompleted();
+            logging.getLogger().debug("Number of acions:" + this._stateConfig.actions.length);
             let n = 0;
             _.forEach(this._stateConfig.actions, (action)=> {
                 let actionObject = this._actionFactory.getAction(action.name, event, action.period, action.offset);
@@ -58,14 +59,15 @@ class State {
 
                         observer.onNext();
 
-                        if (n == this._stateConfig.actions.length) {
+                        if (n >= this._stateConfig.actions.length) {
+                            logging.getLogger().debug("Successfully finished all the actions!");
                             observer.onCompleted();
                         }
                     });
                 } else {
                     n++;
                     observer.onNext();
-                    if (n == this._stateConfig.actions.length) {
+                    if (n >= this._stateConfig.actions.length) {
                         observer.onCompleted();
                         return;
                     }

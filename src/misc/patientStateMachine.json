@@ -72,7 +72,7 @@
         },
         {
           "trigger": "OnDevicesInstalled",
-          "target": "StateWaitingMeasurement"
+          "target": "StateWaitingFirstMeasurement"
         },
         {
           "trigger": "OnMeasurementReceived",
@@ -81,6 +81,10 @@
             {
               "name": "ActionScheduleAdviseTakeMeasurement",
               "offset": 300
+            },
+            {
+              "name": "ActionSendMeasureReceivedNotification",
+              "notificationTemplate": "patientMeasure"
             }
           ]
         },
@@ -275,12 +279,37 @@
       "transitions": [
         {
           "trigger": "OnDevicesInstalled",
-          "target": "StateWaitingMeasurement"
+          "target": "StateWaitingFirstMeasurement"
         }
       ]
     },
     {
       "name": "StateWaitingMeasurement",
+      "actions": [
+        {
+          "name": "ActionSendExpectMeasurementNotification",
+          "notificationTemplate": "patientExpectMeasure"
+        }
+      ],
+      "transitions": [
+        {
+          "trigger": "OnMeasurementReceived",
+          "target": "StateIdle",
+          "actions": [
+            {
+              "name": "ActionScheduleAdviseTakeMeasurement",
+              "offset": 300
+            },
+            {
+              "name": "ActionSendMeasureReceivedNotification",
+              "notificationTemplate": "patientMeasure"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "StateWaitingFirstMeasurement",
       "actions": [
         {
           "name": "ActionSendTakeMeasurementNotification",
@@ -295,6 +324,10 @@
             {
               "name": "ActionScheduleAdviseTakeMeasurement",
               "offset": 300
+            },
+            {
+              "name": "ActionSendMeasureReceivedNotification",
+              "notificationTemplate": "patientMeasure"
             }
           ]
         }

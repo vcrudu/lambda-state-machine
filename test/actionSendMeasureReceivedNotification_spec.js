@@ -2,16 +2,16 @@
  * Created by victorcrudu on 26/05/2016.
  */
 
-import ActionSendMeasurementNotification from '../src/actions/actionSendMeasurementNotification';
+import ActionSendMeasureReceivedNotification from '../src/actions/actionSendMeasureReceivedNotification';
 import chai from 'chai';
 import moment from 'moment';
 import awsFactory from '../src/awsFactory';
 
-describe('ActionSendMeasurementNotification',()=> {
+describe('ActionSendMeasureReceivedNotification',()=> {
     let expect = chai.expect;
     it('should send patient alarm', (done)=> {
-        let actionSendMeasurementNotification = new ActionSendMeasurementNotification(awsFactory.getSnsClient());
-        let userId = 'vcrudu@hotmail.com';
+        let actionSendMeasurementNotification = new ActionSendMeasureReceivedNotification(awsFactory.getSnsClient());
+        let userId = 'vcrudu1@hotmail.com';
         var event = {
             name: "Any",
             payload: {

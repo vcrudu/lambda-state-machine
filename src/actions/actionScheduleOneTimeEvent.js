@@ -59,6 +59,8 @@ class ActionScheduleOneTimeEvent extends Action {
                 }
             });
 
+        logging.getLogger().debug(post_data);
+
         var req = http.request(reqOptions, function (res) {
 
             res.setEncoding('utf8');
@@ -74,6 +76,7 @@ class ActionScheduleOneTimeEvent extends Action {
             });
 
             req.on('error', function (e) {
+                logging.getLogger().error(e);
                 callback(e);
             });
 

@@ -28,7 +28,7 @@ class UserDetailsRepository {
             if (data.Item) {
                 let user = {
                     userId:data.Item.email.S,
-                    title:data.Item.title.S,
+                    title: data.Item.title?data.Item.title.S:"",
                     name:data.Item.name.S,
                     surname:data.Item.surname.S
                 };

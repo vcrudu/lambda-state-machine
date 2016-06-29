@@ -35,7 +35,7 @@ class Transition {
             _.forEach(this._transitionConfig.actions, (action)=> {
                 let actionObject = this._actionFactory.getAction(action.name, event, action.period, action.offset);
                 if (actionObject) {
-                    actionObject.do(user.email, event, (err)=> {
+                    actionObject.do(event, (err)=> {
                         if (err) {
                             observer.onError(err);
                             return;

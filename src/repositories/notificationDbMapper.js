@@ -15,7 +15,8 @@ class NotificationDbMapper {
             type: {S: notification.type},
             category: {S: notification.category},
             userId: {S: notification.userId},
-            read:{BOOL:false}
+            read: {BOOL: false},
+            responseAction: {S: notification.responseAction}
         };
 
     }
@@ -31,7 +32,8 @@ class NotificationDbMapper {
             title: dbEntity.title.S,
             type: dbEntity.type.S,
             category: dbEntity.category.S,
-            userId: dbEntity.userId.S
+            userId: dbEntity.userId.S,
+            responseAction: dbEntity.responseAction ? dbEntity.responseAction.S : ""
         };
 
     }

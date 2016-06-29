@@ -12,6 +12,7 @@ import NotificationsRepository from '../src/repositories/notificationsRepository
 import UserRepository from '../src/repositories/userRepository';
 import UserDetailsRepository from '../src/repositories/userDetailsRepository';
 import SnsEndpointsRepository from '../src/repositories/snsEndpointsRepository';
+import ActionSendProviderAppointmentBookedNotification from '../src/actions/actionSendProviderAppointmentBookedNotification';
 
 
 describe('Action class',()=> {
@@ -142,15 +143,17 @@ describe('Action class',()=> {
     describe('Appointment action', ()=> {
         it('should instantiate message with user details, save into database and send message', (done)=> {
 
-            let testedAction = new Action('ActionSendPatientAppointmentBookedNotification', 'patientAppointmentBooked', awsFactory.getSnsClient());
+            let testedAction = new ActionSendProviderAppointmentBookedNotification('ActionSendProviderAppointmentBookedNotification', 'providerAppointmentBooked', awsFactory.getSnsClient());
 
             let event = {
-                payload: {
-                    userId:'vcrudu@hotmail.com',
-                    providerTitle: 'Dr.',
-                    providerFullName: 'Martin Who',
-                    providerType: 'Doctor',
-                    appointmentDateTime: new Date().getTime()
+                "name": "OnAppointmentBooking",
+                "payload": {
+                    "userId": "vcrudu1@hotmail.com",
+                    "providerId": "who@hotmail.com",
+                    "providerTitle": "Dr.",
+                    "providerFullName": "Martin Who",
+                    "providerType": "Medicine",
+                    "appointmentDateTime": 1467207900000
                 }
             };
 
@@ -162,4 +165,6 @@ describe('Action class',()=> {
             });
         });
     });
+
+
 });

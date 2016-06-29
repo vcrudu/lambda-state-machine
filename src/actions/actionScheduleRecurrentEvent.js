@@ -18,8 +18,9 @@ class ActionScheduleRecurrentEvent extends Action {
     set jobDateTime  (value)  { this._jobDateTime = value            }
     get jobDateTime  ()       { return this._jobDateTime             }
 
-    do(userId, event, callback) {
+    do(event, callback) {
 
+        let userId = event.userId;
         var reqOptions = {
             hostname: 'localhost', //'hcm-scheduler.eu-west-1.elasticbeanstalk.com',
             port: 8081,

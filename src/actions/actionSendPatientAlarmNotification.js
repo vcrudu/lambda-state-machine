@@ -54,13 +54,14 @@ class ActionSendPatientAlarmNotification extends Action {
             userId: user.email,
             dateTime: new Date().getTime(),
             category: notificationTemplate.category,
-            content: this._instantiateParameters(notificationTemplate.content, instanceBundle),
-            summary: this._instantiateParameters(notificationTemplate.summary, instanceBundle),
+            content: this.instantiateParameters(notificationTemplate.content, instanceBundle),
+            summary: this.instantiateParameters(notificationTemplate.summary, instanceBundle),
             title: notificationTemplate.title,
             imageLink: notificationTemplate.imageLink ? notificationTemplate.imageLink : 'https://s3-eu-west-1.amazonaws.com/trichrome/public/default.png',
             read: false,
             type: notificationTemplate.templateName,
-            defaultAction: 'openMessage'
+            defaultAction: 'openMessage',
+            responseAction: this._name
         };
         return notification;
     }

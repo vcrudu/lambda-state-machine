@@ -7,7 +7,7 @@ import awsFactory from '../awsFactory';
 import ActionSendProviderAppointmentBookedNotification from './actionSendProviderAppointmentBookedNotification';
 import ActionSendPatientAppointmentBookedNotification from './actionSendPatientAppointmentBookedNotification';
 import ActionSendPatientAlarmNotification from './actionSendPatientAlarmNotification';
-import ActionSendMeasurementNotification from './actionSendMeasurementNotification';
+import ActionSendMeasureReceivedNotification from './actionSendMeasureReceivedNotification';
 
 
 
@@ -49,9 +49,9 @@ class ActionFactory {
             {
                 return new ActionSendPatientAlarmNotification(awsFactory.getSnsClient());
             }
-            case 'ActionSendMeasurementNotification':
+            case 'ActionSendMeasureReceivedNotification':
             {
-                return new ActionSendMeasurementNotification(awsFactory.getSnsClient());
+                return new ActionSendMeasureReceivedNotification(awsFactory.getSnsClient());
             }
             default:
                 return this._actions[name];
@@ -67,6 +67,6 @@ export default new ActionFactory([
     new Action('ActionSendDevicesOrderedNotification','devicesOrdered', awsFactory.getSnsClient()),
     new Action('ActionSendDevicesDispatchedNotification','devicesDispatched', awsFactory.getSnsClient()),
     new Action('ActionSendInstallDevicesNotification','installDevices',awsFactory.getSnsClient()),
-    new Action('ActionSendTakeMeasurementNotification','takeMeasurement', awsFactory.getSnsClient())
-
+    new Action('ActionSendTakeMeasurementNotification','takeMeasurement', awsFactory.getSnsClient()),
+    new Action('ActionSendExpectMeasurementNotification','patientExpectMeasure', awsFactory.getSnsClient())
 ]);

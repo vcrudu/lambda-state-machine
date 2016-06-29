@@ -7,10 +7,11 @@ import Action from './action';
 import moment from 'moment';
 import repositoriesFactory from '../repositories/repositoriesFactory';
 import util from 'util';
+import momenttz from 'moment-timezone';
 
-class ActionSendMeasurementNotification extends Action {
+class ActionSendMeasureReceivedNotification extends Action {
     constructor(snsClient) {
-        super('ActionSendMeasurementNotification', 'patientMeasure', snsClient);
+        super('ActionSendMeasureReceivedNotification', 'patientMeasure', snsClient);
     }
     
     _getMeasurementValueString(measurementType, value){
@@ -37,7 +38,7 @@ class ActionSendMeasurementNotification extends Action {
             .replace('{{userFullName}}', bundle.userFullName)
             .replace('{{measurementType}}', bundle.measurementType)
             .replace('{{measurementValue}}', this._getMeasurementValueString(bundle.measurementType, bundle.value))
-            .replace('{{dateTime}}', moment(bundle.utcDateTime).format("MMM Do YYYY, h:mm:ss a"));
+            .replace('{{dateTime}}', momenttz(bundle.utcDateTime).tz("Europe/London").format('LT'));
     }
 
     buildTemplate(userDetails, user, event, notificationTemplate) {
@@ -53,13 +54,14 @@ class ActionSendMeasurementNotification extends Action {
             userId: user.email,
             dateTime: new Date().getTime(),
             category: notificationTemplate.category,
-            content: this._instantiateParameters(notificationTemplate.content, instanceBundle),
-            summary: this._instantiateParameters(notificationTemplate.summary, instanceBundle),
+            content: this.instantiateParameters(notificationTemplate.content, instanceBundle),
+            summary: this.instantiateParameters(notificationTemplate.summary, instanceBundle),
             title: notificationTemplate.title,
             imageLink: notificationTemplate.imageLink ? notificationTemplate.imageLink : 'https://s3-eu-west-1.amazonaws.com/trichrome/public/default.png',
             read: false,
             type: notificationTemplate.templateName,
-            defaultAction: 'openMessage'
+            defaultAction: 'openMessage',
+            responseAction: this._name
         };
         return notification;
     }
@@ -103,4 +105,4 @@ class ActionSendMeasurementNotification extends Action {
     }
 }
 
-export default ActionSendMeasurementNotification;
+export default ActionSendMeasureReceivedNotification;
