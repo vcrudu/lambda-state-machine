@@ -22,7 +22,7 @@ class ActionSendProviderAppointmentBookedNotification extends Action {
         };
 
         let notification = {
-            userId: user.email,
+            userId: event.payload.providerId,
             dateTime: new Date().getTime(),
             category: notificationTemplate.category,
             content: super.instantiateParameters(notificationTemplate.content, instanceBundle),
@@ -55,7 +55,7 @@ class ActionSendProviderAppointmentBookedNotification extends Action {
                                     callback(new Error('The provider was not specified!'));
                                     return;
                                 }
-                                super.SendNotification(notification, userId, callback);
+                                super.SendNotification(notification, event.payload.providerId, callback);
                             } else {
                                 callback(err);
                             }
@@ -79,7 +79,7 @@ class ActionSendProviderAppointmentBookedNotification extends Action {
             callback(new Error('The appointment details were not specified!'));
             return;
         }
-        this.execAction(event.payload.providerId, event, callback);
+        this.execAction(event.payload.userId, event, callback);
     }
 }
 

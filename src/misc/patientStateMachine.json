@@ -322,10 +322,6 @@
           "target": "StateIdle",
           "actions": [
             {
-              "name": "ActionScheduleAdviseTakeMeasurement",
-              "offset": 300
-            },
-            {
               "name": "ActionSendMeasureReceivedNotification",
               "notificationTemplate": "patientMeasure"
             }

@@ -32,7 +32,7 @@ class ActionSendMeasureReceivedNotification extends Action {
         }
     }
 
-    _instantiateParameters(parametrizedString, bundle) {
+    instantiateParameters(parametrizedString, bundle) {
         return parametrizedString
             .replace('{{userTitle}}', bundle.userTitle)
             .replace('{{userFullName}}', bundle.userFullName)
