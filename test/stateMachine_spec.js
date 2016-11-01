@@ -35,6 +35,7 @@ describe('StateMachine',()=> {
     let statesManager;
     let stateMachine;
     let runTransitionActionsStub;
+    let checkGuardsStub;
 
     var event = {
         name: "Any",
@@ -50,10 +51,12 @@ describe('StateMachine',()=> {
         isTransitionValidStub = sinon.stub();
         runStateActionsStub = sinon.stub();
         runTransitionActionsStub = sinon.stub();
+        checkGuardsStub = sinon.stub();
         statesManager = {
             getStateMachineConfig: getStateMachineConfigStub,
             getStartState: getStartStateStub,
             getState: getStateStub,
+            checkGuards: checkGuardsStub,
             isStateValid: isStateValidStub,
             isTransitionValid: isTransitionValidStub,
             runStateActions: runStateActionsStub,
@@ -104,7 +107,7 @@ describe('StateMachine',()=> {
 
             let user = {};
             let stateName = "stateName";
-            let startState = {getStateName:sinon.stub()};
+            let startState = {getStateName: sinon.stub()};
             startState.getStateName.returns("stateName");
             statesManager.getStartState.returns(startState);
             findOneByEmailStub.yields(null, user);
@@ -123,25 +126,63 @@ describe('StateMachine',()=> {
 
     describe('user has state', () => {
         it('should set state to next state', (done)=> {
-            let user = {userState:"OK"};
-            let stateName = "stateName";
-            let currentState = {getNextStateName:sinon.stub(), getStateName : sinon.stub()};
-            currentState.getNextStateName.returns(stateName);
+            let nextStateName = "nextStateName";
 
-            statesManager.getState.returns(currentState);
+            let user = {userState: "currentStateName"};
+            let currentStateName = 'currentStateName';
+            let currentState = {getNextStateName: sinon.stub().returns(nextStateName), getStateName: sinon.stub().returns(currentStateName)};
+            let nextState = {checkGuards: sinon.stub().callsArgWith(1)};
+            currentState.getNextStateName.returns(nextStateName);
+
+            statesManager.getState.withArgs(nextStateName).returns(nextState);
+            statesManager.getState.withArgs(currentStateName).returns(currentState);
             runTransitionActionsStub.yields(null);
             findOneByEmailStub.yields(null, user);
             updateStateStub.yields(null);
             runStateActionsStub.yields(null, "OK");
             isTransitionValidStub.returns(true);
-            isStateValidStub.withArgs(stateName).returns(true);
+            isStateValidStub.withArgs(nextStateName).returns(true);
 
-            stateMachine.receiveEvent(event, function () {
+            stateMachine.receiveEvent(event, function (err) {
                 expect(getStartStateStub.called).to.be.false;
                 expect(updateStateStub.calledOnce).to.be.true;
                 expect(runStateActionsStub.calledOnce).to.be.true;
-                expect(runTransitionActionsStub.calledOnce).to.be.true;
-                expect(runStateActionsStub.calledWith(stateName, event)).to.be.true;
+                expect(runTransitionActionsStub.calledWith(currentStateName)).to.be.true;
+                expect(runStateActionsStub.calledWith(nextStateName, event)).to.be.true;
+                expect(nextState.checkGuards.calledOnce).to.be.true;
+                expect(err).to.be.a('null');
+                done();
+            });
+        });
+    });
+
+    describe('Check guard return error', () => {
+        it('should not change the state', (done)=> {
+            let nextStateName = "nextStateName";
+
+            let user = {userState: "currentStateName"};
+            let currentStateName = 'currentStateName';
+            let currentState = {getNextStateName: sinon.stub().returns(nextStateName), getStateName: sinon.stub().returns(currentStateName)};
+            let nextState = {checkGuards: sinon.stub().callsArgWith(1, 'err')};
+            currentState.getNextStateName.returns(nextStateName);
+
+            statesManager.getState.withArgs(nextStateName).returns(nextState);
+            statesManager.getState.withArgs(currentStateName).returns(currentState);
+            runTransitionActionsStub.yields(null);
+            findOneByEmailStub.yields(null, user);
+            updateStateStub.yields(null);
+            runStateActionsStub.yields(null, "OK");
+            isTransitionValidStub.returns(true);
+            isStateValidStub.withArgs(nextStateName).returns(true);
+
+            stateMachine.receiveEvent(event, function (err) {
+                expect(getStartStateStub.called).to.be.false;
+                expect(updateStateStub.calledOnce).to.be.false;
+                expect(runStateActionsStub.calledOnce).to.be.false;
+                expect(runTransitionActionsStub.calledWith(currentStateName)).to.be.false;
+                expect(runStateActionsStub.calledWith(nextStateName, event)).to.be.false;
+                expect(nextState.checkGuards.calledOnce).to.be.true;
+                expect(err).to.not.be.a('null');
                 done();
             });
         });

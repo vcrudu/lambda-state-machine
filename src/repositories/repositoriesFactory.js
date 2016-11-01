@@ -5,7 +5,9 @@ import UserRepository from './userRepository';
 import UserDetailsRepository from './userDetailsRepository';
 import NotificationsRepository from './notificationsRepository';
 import NotificationTemplatesRepository from './notificationTemplatesRepository';
-import SnsEndpointsRepository from './snsEndpointsRepository'
+import SnsEndpointsRepository from './snsEndpointsRepository';
+import EventsRepository from './eventsRepository';
+import GlobalMeasurementScheduleRepository from './globalMeasurementScheduleRepository';
 
 
 class RepositoriesManager {
@@ -32,6 +34,15 @@ class RepositoriesManager {
     getSnsEndpointsRepository(dynamoDb){
         return new SnsEndpointsRepository(dynamoDb);
     }
+
+    getEventsRepository(dynamoDb){
+        return new EventsRepository(dynamoDb);
+    }
+
+    getGlobalMeasurementScheduleRepository(dynamoDb){
+        return new GlobalMeasurementScheduleRepository(dynamoDb);
+    }
+
 
     
 }

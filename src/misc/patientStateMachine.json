@@ -181,6 +181,10 @@
         {
           "trigger": "OnOneMinuteRemained",
           "target": "StateInformedNotificationSoon"
+        },
+        {
+          "trigger": "OnPatientInvitedToGroup",
+          "target": "StatePatientInvitedToGroup"
         }
       ]
     },
@@ -281,10 +285,13 @@
     },
     {
       "name": "StateWaitingMeasurement",
+      "entryGuards": [
+        "IsMeasureNotOnTime"
+      ],
       "actions": [
         {
-          "name": "ActionSendExpectMeasurementNotification",
-          "notificationTemplate": "patientExpectMeasure"
+          "name": "ActionSendExpectMeasurementTypeNotification",
+          "notificationTemplate": "patientExpectMeasureType"
         }
       ],
       "transitions": [
@@ -318,6 +325,10 @@
               "notificationTemplate": "patientMeasure"
             }
           ]
+        },
+        {
+          "trigger": "OnPatientInvitedToGroup",
+          "target": "StatePatientInvitedToGroup"
         }
       ]
     },
@@ -332,6 +343,21 @@
       "transitions": [
         {
           "trigger": "OnAlarmClosed",
+          "target": "StateIdle"
+        }
+      ]
+    },
+    {
+      "name": "StatePatientInvitedToGroup",
+      "actions": [
+        {
+          "name": "ActionSendPatientInvitedToGroupNotification",
+          "notificationTemplate": "invitedToGroupNotification"
+        }
+      ],
+      "transitions": [
+        {
+          "trigger": "OnInvitationToGroupAccepted",
           "target": "StateIdle"
         }
       ]

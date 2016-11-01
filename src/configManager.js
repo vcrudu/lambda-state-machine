@@ -10,7 +10,7 @@ class ConfigManager {
 
         let s3params = {
             Bucket: 'trichrome',
-            Key: 'private/config/patientStateMachine.json'
+            Key: 'private/config/patientStateMachine.group.json'
         };
 
         s3Client.getObject(s3params, function (err, data) {

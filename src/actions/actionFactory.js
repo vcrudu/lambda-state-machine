@@ -68,5 +68,7 @@ export default new ActionFactory([
     new Action('ActionSendDevicesDispatchedNotification','devicesDispatched', awsFactory.getSnsClient()),
     new Action('ActionSendInstallDevicesNotification','installDevices',awsFactory.getSnsClient()),
     new Action('ActionSendTakeMeasurementNotification','takeMeasurement', awsFactory.getSnsClient()),
-    new Action('ActionSendExpectMeasurementNotification','patientExpectMeasure', awsFactory.getSnsClient())
+    new Action('ActionSendExpectMeasurementNotification','patientExpectMeasure', awsFactory.getSnsClient()),
+    new Action('ActionSendExpectMeasurementTypeNotification','patientExpectMeasureType', awsFactory.getSnsClient()),
+    new Action('ActionSendPatientInvitedToGroupNotification','invitedToGroupNotification', awsFactory.getSnsClient())
 ]);

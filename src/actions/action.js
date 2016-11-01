@@ -39,6 +39,9 @@ class Action {
             .replace('{{providerTitle}}', bundle.providerTitle)
             .replace('{{providerFullName}}', bundle.providerFullName)
             .replace('{{providerType}}', bundle.providerType)
+            .replace('{{measurementType}}', bundle.measurementType)
+            .replace('{{groupName}}', bundle.groupName)
+            .replace('{{approveLink}}', bundle.approveLink)
             .replace('{{time}}', bundle.appointmentDateTime ? momenttz(bundle.appointmentDateTime).tz("Europe/London").format('LT') : '')
             .replace('{{date}}', bundle.appointmentDateTime ? momenttz(bundle.appointmentDateTime).tz("Europe/London").format('LL') : '');
     }
@@ -75,6 +78,17 @@ class Action {
         });
     }
 
+    getMeasurementType(scheduleType) {
+        switch (scheduleType) {
+            case "bloodPressure": {
+                return "Blood Pressure";
+            }
+            default: {
+                return "";
+            }
+        }
+    }
+
     buildTemplate(userDetails, user, event, notificationTemplate) {
         let instanceBundle = {
             userTitle: userDetails && userDetails.title ? userDetails.title : "",
@@ -82,7 +96,10 @@ class Action {
             providerTitle: event.payload.providerTitle,
             providerFullName: event.payload.providerFullName,
             providerType: event.payload.providerType,
-            appointmentDateTime: event.payload.appointmentDateTime
+            appointmentDateTime: event.payload.appointmentDateTime,
+            measurementType: this.getMeasurementType(event.payload.scheduleType),
+            groupName: event.payload.groupName,
+            approveLink: event.payload.approveLink
         };
 
         let notification = {
