@@ -18,7 +18,7 @@ describe('StateMachine',()=> {
     let expect = chai.expect;
     let userId = 'test@test.com';
     let actionName = 'ActionSendWelcomeNotification';
-    let filePath = path.resolve('.', './src/misc/patientStateMachine.json');
+    let filePath = path.resolve('.', './src/misc/patientStateMachine.group.json');
     let stateMachineConfig = ConfigManager.getLocalStateMachineConfig(filePath);
     let userState = null;
     let userRepository;
