@@ -26,7 +26,7 @@ class UserRepository {
                 email: dbEntity.email.S,
                 name: dbEntity.name.S,
                 surname: dbEntity.surname.S,
-                userState: dbEntity.userState ? dbEntity.userState.S : undefined
+                userState: dbEntity[global.stateMachineName] ? dbEntity[global.stateMachineName].S : undefined
             };
         };
         
@@ -56,7 +56,7 @@ class UserRepository {
                 ":userState": {"S": userState},
             },
             ReturnConsumedCapacity: 'TOTAL',
-            UpdateExpression: 'SET userState=:userState'
+            UpdateExpression: 'SET '+global.stateMachineName+'=:userState'
         };
 
         this._dynamoDb.updateItem(params, function (err, data) {

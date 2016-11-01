@@ -1,4 +1,5 @@
 {
+  "name":"userState",
   "start": {
     "name": "StateUnreadWelcome",
     "transitions": [
@@ -87,6 +88,10 @@
         {
           "trigger": "OnAlarmClosed",
           "target": "StateIdle"
+        },
+        {
+          "trigger": "OnPatientInvitedToGroup",
+          "target": "StatePatientInvitedToGroup"
         }
       ]
     },

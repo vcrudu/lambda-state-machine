@@ -1,5 +1,5 @@
 {
-  "name": "hcm.patient.lambda",
+  "name": "hcm.group.lambda",
   "version": "0.2.2",
   "description": "",
   "main": "index.js",
