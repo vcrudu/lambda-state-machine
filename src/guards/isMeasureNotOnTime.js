@@ -5,6 +5,7 @@ import awsFactory from '../awsFactory';
 import repositoriesFactory from '../repositories/repositoriesFactory';
 import moment from 'moment';
 import util from 'util';
+import logging from '../logging';
 
 class IsMeasureNotOnTime {
     check(stateEvent, callback) {
@@ -18,6 +19,8 @@ class IsMeasureNotOnTime {
                         callback(false);
                     } else {
                         let eventTime = moment(event.measurementDateTime);
+
+                        logging.getLogger().info('Check measurementSchedule: '+util.inspect(stateEvent,{depth:null}));
 
                         let eventScheduleInterval = measurementSchedule.dayTimePoints
                             .map(dayTimePoint=> {
@@ -37,10 +40,7 @@ class IsMeasureNotOnTime {
 
                                 let startOfPrevPeriodTime = moment(item.momentTime).add(startOfPrevPeriodOffset, 'm');
                                 let endOfPrevPeriodTime = moment(item.momentTime).add(endOfPrevPeriodOffset, 'm');
-                                console.log(util.inspect({
-                                    eventTime:moment(eventTime).format(),
-                                    stateEventRunAt:moment(stateEvent.runAt).format()
-                                }), true, 1);
+
 
                                 return moment(eventTime).isBetween(startOfPrevPeriodTime, endOfPrevPeriodTime, null, '[]') &&
                                     moment(stateEvent.runAt).isBetween(startOfPrevPeriodTime, endOfPrevPeriodTime, null, '[]');

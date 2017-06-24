@@ -6,7 +6,6 @@ import actionFactory from './actions/actionFactory'
 import StatesManager from './statesManager';
 import loggerProvider from './logging';
 import util from 'util';
-console.log('Received event: ', util.inspect(global, true, 3));
 export let main = (event, context, callback) => {
 
     ConfigManager.getStateMachineConfig(awsFactory.getS3Client(), (err, stateMachineConfig)=> {
@@ -14,8 +13,7 @@ export let main = (event, context, callback) => {
             try {
 
                 global.stateMachineName = stateMachineConfig.name?stateMachineConfig.name:"userState";
-
-                console.log('Received event: ', util.inspect(global, true, 3));
+                loggerProvider.getLogger().info('hcm.group.lambda uses stateMachineName ' + global.stateMachineName);
 
                 let statesManager = new StatesManager(stateMachineConfig, actionFactory);
                 let stateMachine = new StateMachine(statesManager, repositoriesFactory.getUserRepository(awsFactory.getDb()), actionFactory);

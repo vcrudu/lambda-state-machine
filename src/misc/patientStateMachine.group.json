@@ -1,5 +1,5 @@
 {
-  "name":"userState",
+  "name":"groupState",
   "start": {
     "name": "StateIdle",
     "transitions": [
